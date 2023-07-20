@@ -18,9 +18,9 @@ date | levels
 yyyy-mm-dd | p1, p2, p3, p4
 yyyy-mm-dd | p1, p2, p3, p5, p6, p7
 ```
-The first line (header) of the file will always be ignored.
-You may have as many dates as you wish in this file.
-You may have as many levels as you wish in this file.
+* first line (header) of the file will always be ignored
+* you may have as many dates as you wish in this file
+* you may have as many levels as you wish in this file
 
 For example if we create a file "es_example_levels.csv"
 ```
