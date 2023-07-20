@@ -37,7 +37,7 @@
 			private Dictionary<DateTime, List<double>> _levelsByDate;
 			private DateTime _lastFileModifiedDate;
 			private long _lastMaxLevels;
-			private static string version = "1.3.0";
+			private static string version = "1.3.1";
 			#endregion
 			
 			private void readCSV(string filename)
@@ -86,7 +86,6 @@
 
 			protected override void OnStateChange()
 			{
-				Log("In state change " + State.ToString(), LogLevel.Warning);
 				if (State == State.SetDefaults)
 				{
 					Description									= @"Draws prices levels as an time series indicator values";
