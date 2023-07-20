@@ -1,5 +1,9 @@
-# nt-indicators
-Indicators for NinjaTrader 8 
+- [DailyPriceLevels](#dailypricelevels)
+  - [LevelFileName](#levelfilename)
+  - [SuperDOM](#superdom)
+  - [Other config options](#other-config-options)
+  - [Notes](#notes)
+
 
 ## DailyPriceLevels
 Daily Price Levels indicator allows for the plotting of lines per day that are specified in a text file.  
