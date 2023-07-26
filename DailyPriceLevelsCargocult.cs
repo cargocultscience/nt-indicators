@@ -31,29 +31,38 @@
 	namespace NinjaTrader.NinjaScript.Indicators
 	{
 		
-		public class DailyPriceLevels : Indicator
+		public class DailyPriceLevelsCargocult : Indicator
 		{
 			#region Variables
 			private Dictionary<DateTime, List<double>> _levelsByDate;
 			private DateTime _lastFileModifiedDate;
 			private long _lastMaxLevels;
-			private static string version = "1.3.1";
+			private static string version = "1.4.0";
+			private Series<double> currentUpperLevel;
+			private Series<double> currentLowerLevel;
 			#endregion
 			
 			private void readCSV(string filename)
 			{
-				/* File Format
+				/* 
+				::Filename format - Indicator will replace the text <symbol> with whatever the base symbol name is (eg spy, es, nq, meq, mes)
+				
+				example "<symbol>_levels.csv" will become es_levels.csv and will look for this file 
+				
+				File Format
 				date | levels
 				2023-07-03 | p1, p2, p3, p4
 				2023-07-05 | p1, p2, p3, p5, p6, p7
+				
 				*/
-				if (!File.Exists(filename))
+				string resolved_filename = filename.Replace("<symbol>", Instrument.MasterInstrument.Name.ToLower());
+				if (!File.Exists(resolved_filename))
 				{
-					Log("File " + LevelFileName + " not found", LogLevel.Error);
+					Log("File " + resolved_filename + " not found", LogLevel.Error);
 					return;
 				}
 
-				var fileModifiedDate = File.GetLastWriteTime(filename);
+				var fileModifiedDate = File.GetLastWriteTime(resolved_filename);
 				if(fileModifiedDate == _lastFileModifiedDate)
 				{
 					return;;
@@ -61,7 +70,7 @@
 				_lastFileModifiedDate = fileModifiedDate;
 				_levelsByDate = new Dictionary<DateTime, List<double>>();	
 				long maxLevels = 0;
-				using(StreamReader reader = new StreamReader(filename))
+				using(StreamReader reader = new StreamReader(resolved_filename))
 				{
 					string line = reader.ReadLine();
 					// skip header
@@ -81,7 +90,7 @@
 						line = reader.ReadLine();
 					}
 				}
-				Log(Name + " read file " + LevelFileName + " with modified date of " + _lastFileModifiedDate + " and maxLevels " + maxLevels, LogLevel.Information);
+				Log(Name + " read file " + resolved_filename + " with modified date of " + _lastFileModifiedDate + " and maxLevels " + maxLevels, LogLevel.Information);
 			}
 
 			protected override void OnStateChange()
@@ -106,11 +115,12 @@
 					LevelLineWidth = 2;
 					LevelLineOpacity = 50;
 					LevelLineType = DashStyleHelper.Dot;
-					LevelScaleFactor = 1.0;
 					Log("Daily Price Levels by Cargocult version " + version, LogLevel.Information);
 				}
 				else if (State == State.Configure)
 				{
+					currentUpperLevel 			= new Series<double>(this);
+					currentLowerLevel			= new Series<double>(this);
 					readCSV(LevelFileName);
 					long maxNumberOfLevels = 25;
 					foreach(KeyValuePair<DateTime, List<double>> entry in _levelsByDate)
@@ -131,6 +141,10 @@
 				if (_levelsByDate == null) return;
 				if(_levelsByDate.ContainsKey(Time[0].Date)) 
 				{
+					double input0 = Input[0];
+					double upper_level = double.NaN;
+					double lower_level = double.NaN;
+					double closest_level = double.NaN;
 					var levels = _levelsByDate[Time[0].Date];
 					int counter = 0;
 					foreach(double level in levels)
@@ -140,13 +154,47 @@
 							Log("More levels added than plots - please refresh your chart using F5", LogLevel.Error);
 							return;
 						}
-						Values[counter++][0] = level * LevelScaleFactor;
+						Values[counter++][0] = level;
+						if(level >= input0) 
+						{
+							if(double.IsNaN(upper_level) || level < upper_level)
+							{
+								upper_level = level;
+							}
+						}
+						if(level <= input0) 
+						{
+							if(double.IsNaN(lower_level) || level > lower_level)
+							{
+								lower_level = level;
+							}
+						}
+						if(double.IsNaN(closest_level) || (Math.Abs(level-input0) < Math.Abs(closest_level-input0)))
+						{
+							closest_level = level;
+						}
 					}
+					currentUpperLevel[0] = upper_level;
+					currentLowerLevel[0] = lower_level;
 				}
 			}
 			
 			#region Properties
 			
+			[Browsable(false)]
+			[XmlIgnore]		
+        	public Series <double> CurrentUpperLevel
+        	{
+            	get { return currentUpperLevel; }	
+        	}
+
+			[Browsable(false)]
+			[XmlIgnore]		
+        	public Series <double> CurrentLowerLevel
+        	{
+            	get { return currentLowerLevel; }	
+        	}
+
 			[NinjaScriptProperty]
 			[Display(Name="Level FileName", Description="Name of the csv file containing the price levels", Order=1, GroupName="Level Parameters")]
 			public string LevelFileName
@@ -180,12 +228,6 @@
 			public DashStyleHelper LevelLineType
 			{ get; set; }
 
-			[Range(0, double.MaxValue)]
-			[NinjaScriptProperty]
-			[Display(Name="Level Scale Factor", Description="Scale Factor For Level Values", Order=7, GroupName="Level Parameters")]
-			public double LevelScaleFactor
-			{ get; set; }
-
 			#endregion
 
 		}
@@ -197,19 +239,19 @@ namespace NinjaTrader.NinjaScript.Indicators
 {
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
-		private DailyPriceLevels[] cacheDailyPriceLevels;
-		public DailyPriceLevels DailyPriceLevels(string levelFileName, int levelLineWidth, int levelLineOpacity, double levelScaleFactor)
+		private DailyPriceLevelsCargocult[] cacheDailyPriceLevelsCargocult;
+		public DailyPriceLevelsCargocult DailyPriceLevelsCargocult(string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return DailyPriceLevels(Input, levelFileName, levelLineWidth, levelLineOpacity, levelScaleFactor);
+			return DailyPriceLevelsCargocult(Input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 
-		public DailyPriceLevels DailyPriceLevels(ISeries<double> input, string levelFileName, int levelLineWidth, int levelLineOpacity, double levelScaleFactor)
+		public DailyPriceLevelsCargocult DailyPriceLevelsCargocult(ISeries<double> input, string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			if (cacheDailyPriceLevels != null)
-				for (int idx = 0; idx < cacheDailyPriceLevels.Length; idx++)
-					if (cacheDailyPriceLevels[idx] != null && cacheDailyPriceLevels[idx].LevelFileName == levelFileName && cacheDailyPriceLevels[idx].LevelLineWidth == levelLineWidth && cacheDailyPriceLevels[idx].LevelLineOpacity == levelLineOpacity && cacheDailyPriceLevels[idx].LevelScaleFactor == levelScaleFactor && cacheDailyPriceLevels[idx].EqualsInput(input))
-						return cacheDailyPriceLevels[idx];
-			return CacheIndicator<DailyPriceLevels>(new DailyPriceLevels(){ LevelFileName = levelFileName, LevelLineWidth = levelLineWidth, LevelLineOpacity = levelLineOpacity, LevelScaleFactor = levelScaleFactor }, input, ref cacheDailyPriceLevels);
+			if (cacheDailyPriceLevelsCargocult != null)
+				for (int idx = 0; idx < cacheDailyPriceLevelsCargocult.Length; idx++)
+					if (cacheDailyPriceLevelsCargocult[idx] != null && cacheDailyPriceLevelsCargocult[idx].LevelFileName == levelFileName && cacheDailyPriceLevelsCargocult[idx].LevelLineWidth == levelLineWidth && cacheDailyPriceLevelsCargocult[idx].LevelLineOpacity == levelLineOpacity && cacheDailyPriceLevelsCargocult[idx].EqualsInput(input))
+						return cacheDailyPriceLevelsCargocult[idx];
+			return CacheIndicator<DailyPriceLevelsCargocult>(new DailyPriceLevelsCargocult(){ LevelFileName = levelFileName, LevelLineWidth = levelLineWidth, LevelLineOpacity = levelLineOpacity }, input, ref cacheDailyPriceLevelsCargocult);
 		}
 	}
 }
@@ -218,14 +260,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.DailyPriceLevels DailyPriceLevels(string levelFileName, int levelLineWidth, int levelLineOpacity, double levelScaleFactor)
+		public Indicators.DailyPriceLevelsCargocult DailyPriceLevelsCargocult(string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return indicator.DailyPriceLevels(Input, levelFileName, levelLineWidth, levelLineOpacity, levelScaleFactor);
+			return indicator.DailyPriceLevelsCargocult(Input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 
-		public Indicators.DailyPriceLevels DailyPriceLevels(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity, double levelScaleFactor)
+		public Indicators.DailyPriceLevelsCargocult DailyPriceLevelsCargocult(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return indicator.DailyPriceLevels(input, levelFileName, levelLineWidth, levelLineOpacity, levelScaleFactor);
+			return indicator.DailyPriceLevelsCargocult(input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 	}
 }
@@ -234,14 +276,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.DailyPriceLevels DailyPriceLevels(string levelFileName, int levelLineWidth, int levelLineOpacity, double levelScaleFactor)
+		public Indicators.DailyPriceLevelsCargocult DailyPriceLevelsCargocult(string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return indicator.DailyPriceLevels(Input, levelFileName, levelLineWidth, levelLineOpacity, levelScaleFactor);
+			return indicator.DailyPriceLevelsCargocult(Input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 
-		public Indicators.DailyPriceLevels DailyPriceLevels(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity, double levelScaleFactor)
+		public Indicators.DailyPriceLevelsCargocult DailyPriceLevelsCargocult(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return indicator.DailyPriceLevels(input, levelFileName, levelLineWidth, levelLineOpacity, levelScaleFactor);
+			return indicator.DailyPriceLevelsCargocult(input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 	}
 }
