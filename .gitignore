@@ -1,0 +1,17 @@
+de-DE/
+es-ES/
+fr-FR/
+it-IT/
+ko-KR/
+pt-PT/
+zh-Hans/
+*.resx
+*.dll
+ExportNinjaScript/
+@*.cs
+NinjaTrader.*
+ResourceEnumConverter.cs
+Resource.Designer.cs
+Flowbots.*
+AssemblyInfo.cs
+NinZaRenko*
