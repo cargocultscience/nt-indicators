@@ -22,11 +22,11 @@ using NinjaTrader.Core.FloatingPoint;
 #endregion
 
 //This namespace holds MarketAnalyzerColumns in this folder and is required. Do not change it. 
-namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns.CargoCultMarketAnalyzer
+namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
-	public class ZLEMAMarketAnalyzer : MarketAnalyzerColumn
+	public class CargocultZLEMA : MarketAnalyzerColumn
 	{
-		private NinjaTrader.NinjaScript.Indicators.ZLEMACargoCult indicator;
+		private NinjaTrader.NinjaScript.Indicators.CargocultZLEMA indicator;
 		
 		protected override void OnStateChange()
 		{
@@ -42,7 +42,7 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns.CargoCultMarketAnalyzer
 			}
 			else if (State == State.DataLoaded)
 			{
-				indicator		= ZLEMACargoCult(21);
+				indicator		= CargocultZLEMA(21);
 				
 			}
 		}

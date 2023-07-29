@@ -25,7 +25,7 @@ using NinjaTrader.NinjaScript.DrawingTools;
 //This namespace holds Indicators in this folder and is required. Do not change it. 
 namespace NinjaTrader.NinjaScript.Indicators
 {
-	public class VWAP : Indicator
+	public class CargocultVWAPx : Indicator
 	{
 		double	iCumVolume			= 0;
 		double	iCumTypicalVolume	= 0;
@@ -39,7 +39,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if (State == State.SetDefaults)
 			{
 				Description							= @"Volume Weighted Average Price";
-				Name								= "VWAPx";
+				Name								= "CargocultVWAPx";
 				Calculate							= Calculate.OnBarClose;
 				IsOverlay							= true;
 				DisplayInDataBox					= true;
@@ -370,19 +370,19 @@ namespace NinjaTrader.NinjaScript.Indicators
 {
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
-		private VWAP[] cacheVWAP;
-		public VWAP VWAP()
+		private CargocultVWAPx[] cacheCargocultVWAPx;
+		public CargocultVWAPx CargocultVWAPx()
 		{
-			return VWAP(Input);
+			return CargocultVWAPx(Input);
 		}
 
-		public VWAP VWAP(ISeries<double> input)
+		public CargocultVWAPx CargocultVWAPx(ISeries<double> input)
 		{
-			if (cacheVWAP != null)
-				for (int idx = 0; idx < cacheVWAP.Length; idx++)
-					if (cacheVWAP[idx] != null &&  cacheVWAP[idx].EqualsInput(input))
-						return cacheVWAP[idx];
-			return CacheIndicator<VWAP>(new VWAP(), input, ref cacheVWAP);
+			if (cacheCargocultVWAPx != null)
+				for (int idx = 0; idx < cacheCargocultVWAPx.Length; idx++)
+					if (cacheCargocultVWAPx[idx] != null &&  cacheCargocultVWAPx[idx].EqualsInput(input))
+						return cacheCargocultVWAPx[idx];
+			return CacheIndicator<CargocultVWAPx>(new CargocultVWAPx(), input, ref cacheCargocultVWAPx);
 		}
 	}
 }
@@ -391,14 +391,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.VWAP VWAP()
+		public Indicators.CargocultVWAPx CargocultVWAPx()
 		{
-			return indicator.VWAP(Input);
+			return indicator.CargocultVWAPx(Input);
 		}
 
-		public Indicators.VWAP VWAP(ISeries<double> input )
+		public Indicators.CargocultVWAPx CargocultVWAPx(ISeries<double> input )
 		{
-			return indicator.VWAP(input);
+			return indicator.CargocultVWAPx(input);
 		}
 	}
 }
@@ -407,14 +407,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.VWAP VWAP()
+		public Indicators.CargocultVWAPx CargocultVWAPx()
 		{
-			return indicator.VWAP(Input);
+			return indicator.CargocultVWAPx(Input);
 		}
 
-		public Indicators.VWAP VWAP(ISeries<double> input )
+		public Indicators.CargocultVWAPx CargocultVWAPx(ISeries<double> input )
 		{
-			return indicator.VWAP(input);
+			return indicator.CargocultVWAPx(input);
 		}
 	}
 }

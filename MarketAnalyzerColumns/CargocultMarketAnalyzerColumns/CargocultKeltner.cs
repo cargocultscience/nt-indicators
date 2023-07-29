@@ -22,9 +22,9 @@ using NinjaTrader.Core.FloatingPoint;
 #endregion
 
 //This namespace holds MarketAnalyzerColumns in this folder and is required. Do not change it. 
-namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns.CargoCultMarketAnalyzer
+namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
-	public class KeltnerMarketAnalyzer : MarketAnalyzerColumn
+	public class CargocultKeltner : MarketAnalyzerColumn
 	{
 		private NinjaTrader.NinjaScript.Indicators.KeltnerChannel indicator;
 		
@@ -33,7 +33,7 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns.CargoCultMarketAnalyzer
 			if (State == State.SetDefaults)
 			{
 				Description									= @"Market Analyzer Column For Keltner Channel";
-				Name										= "Keltner Channel";
+				Name										= "CargocultKeltner";
 				Calculate									= Calculate.OnBarClose;
 				DataType   									= typeof(double);
         		IsEditable 									= false;

@@ -22,11 +22,11 @@ using NinjaTrader.Core.FloatingPoint;
 #endregion
 
 //This namespace holds MarketAnalyzerColumns in this folder and is required. Do not change it. 
-namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns.CargoCultMarketAnalyzer
+namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
-	public class DailyPriceLevelMarketAnalyzer : MarketAnalyzerColumn
+	public class CargocultDailyPriceLevels : MarketAnalyzerColumn
 	{
-		private NinjaTrader.NinjaScript.Indicators.DailyPriceLevelsCargocult indicator;
+		private NinjaTrader.NinjaScript.Indicators.CargocultDailyPriceLevels indicator;
 		
 		protected override void OnStateChange()
 		{
@@ -44,7 +44,7 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns.CargoCultMarketAnalyzer
 			{
 				// ::Filename format - Indicator will replace the text <symbol> with whatever the base symbol name is (eg spy, es, nq, meq, mes)
 				string resolved_filename = LevelsFilename.Replace("<symbol>", Instrument.MasterInstrument.Name.ToLower());
-				indicator = DailyPriceLevelsCargocult(resolved_filename, 1, 100);
+				indicator = CargocultDailyPriceLevels(resolved_filename, 1, 100);
 			}
 		}
 

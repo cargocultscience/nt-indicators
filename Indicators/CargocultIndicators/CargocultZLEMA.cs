@@ -30,7 +30,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 	/// <summary>
 	/// The ZLEMA (Zero-Lag Exponential Moving Average) is an EMA variant that attempts to adjust for lag.
 	/// </summary>
-	public class ZLEMACargoCult : Indicator
+	public class CargocultZLEMA : Indicator
 	{
 		private double	k;
 		private int		lag;
@@ -41,7 +41,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if (State == State.SetDefaults)
 			{
 				Description					= NinjaTrader.Custom.Resource.NinjaScriptIndicatorDescriptionZLEMA;
-				Name						= "ZLEMACargoCult";
+				Name						= "CargocultZLEMA";
 				IsSuspendedWhileInactive	= true;
 				IsOverlay					= true;
 				Period						= 14;
@@ -86,19 +86,19 @@ namespace NinjaTrader.NinjaScript.Indicators
 {
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
-		private ZLEMACargoCult[] cacheZLEMACargoCult;
-		public ZLEMACargoCult ZLEMACargoCult(int period)
+		private CargocultZLEMA[] cacheCargocultZLEMA;
+		public CargocultZLEMA CargocultZLEMA(int period)
 		{
-			return ZLEMACargoCult(Input, period);
+			return CargocultZLEMA(Input, period);
 		}
 
-		public ZLEMACargoCult ZLEMACargoCult(ISeries<double> input, int period)
+		public CargocultZLEMA CargocultZLEMA(ISeries<double> input, int period)
 		{
-			if (cacheZLEMACargoCult != null)
-				for (int idx = 0; idx < cacheZLEMACargoCult.Length; idx++)
-					if (cacheZLEMACargoCult[idx] != null && cacheZLEMACargoCult[idx].Period == period && cacheZLEMACargoCult[idx].EqualsInput(input))
-						return cacheZLEMACargoCult[idx];
-			return CacheIndicator<ZLEMACargoCult>(new ZLEMACargoCult(){ Period = period }, input, ref cacheZLEMACargoCult);
+			if (cacheCargocultZLEMA != null)
+				for (int idx = 0; idx < cacheCargocultZLEMA.Length; idx++)
+					if (cacheCargocultZLEMA[idx] != null && cacheCargocultZLEMA[idx].Period == period && cacheCargocultZLEMA[idx].EqualsInput(input))
+						return cacheCargocultZLEMA[idx];
+			return CacheIndicator<CargocultZLEMA>(new CargocultZLEMA(){ Period = period }, input, ref cacheCargocultZLEMA);
 		}
 	}
 }
@@ -107,14 +107,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.ZLEMACargoCult ZLEMACargoCult(int period)
+		public Indicators.CargocultZLEMA CargocultZLEMA(int period)
 		{
-			return indicator.ZLEMACargoCult(Input, period);
+			return indicator.CargocultZLEMA(Input, period);
 		}
 
-		public Indicators.ZLEMACargoCult ZLEMACargoCult(ISeries<double> input , int period)
+		public Indicators.CargocultZLEMA CargocultZLEMA(ISeries<double> input , int period)
 		{
-			return indicator.ZLEMACargoCult(input, period);
+			return indicator.CargocultZLEMA(input, period);
 		}
 	}
 }
@@ -123,14 +123,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.ZLEMACargoCult ZLEMACargoCult(int period)
+		public Indicators.CargocultZLEMA CargocultZLEMA(int period)
 		{
-			return indicator.ZLEMACargoCult(Input, period);
+			return indicator.CargocultZLEMA(Input, period);
 		}
 
-		public Indicators.ZLEMACargoCult ZLEMACargoCult(ISeries<double> input , int period)
+		public Indicators.CargocultZLEMA CargocultZLEMA(ISeries<double> input , int period)
 		{
-			return indicator.ZLEMACargoCult(input, period);
+			return indicator.CargocultZLEMA(input, period);
 		}
 	}
 }

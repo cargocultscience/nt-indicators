@@ -22,11 +22,11 @@ using NinjaTrader.Core.FloatingPoint;
 #endregion
 
 //This namespace holds MarketAnalyzerColumns in this folder and is required. Do not change it. 
-namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns.CargoCultMarketAnalyzer
+namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
-	public class VWAPxMarketAnalyzer : MarketAnalyzerColumn
+	public class CargocultVWAPx : MarketAnalyzerColumn
 	{
-		private NinjaTrader.NinjaScript.Indicators.VWAP indicator;
+		private NinjaTrader.NinjaScript.Indicators.CargocultVWAPx indicator;
 		
 		protected override void OnStateChange()
 		{
@@ -41,7 +41,7 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns.CargoCultMarketAnalyzer
 			}
 			else if (State == State.DataLoaded)
 			{
-				indicator		= VWAP();
+				indicator		= CargocultVWAPx();
 				
 			}
 		}

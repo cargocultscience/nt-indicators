@@ -31,7 +31,7 @@ using SharpDX.DirectWrite;
 namespace NinjaTrader.NinjaScript.Indicators
 {
 	[TypeConverter("NinjaTrader.NinjaScript.Indicators.FibonacciPivotsCargocultTypeConverter")]
-	public class FibonacciPivotsCargocult : Indicator
+	public class CargocultFibonacciPivots : Indicator
 	{
 		private DateTime				cacheMonthlyEndDate		= Globals.MinDate;
 		private DateTime				cacheSessionDate		= Globals.MinDate;
@@ -72,7 +72,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if (State == State.SetDefaults)
 			{
 				Description				= "fibs";
-				Name					= "FibonacciPivotsCargocult";
+				Name					= "CargocultFibonacciPivots";
 				Calculate				= Calculate.OnBarClose;
 				DisplayInDataBox		= true;
 				DrawOnPricePanel		= false;
@@ -463,7 +463,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 	
 	// Hide UserDefinedValues properties when not in use by the HLCCalculationMode.UserDefinedValues
 	// When creating a custom type converter for indicators it must inherit from NinjaTrader.NinjaScript.IndicatorBaseConverter to work correctly with indicators
-	public class FibonacciPivotsCargocultTypeConverter : NinjaTrader.NinjaScript.IndicatorBaseConverter
+	public class CargocultFibonacciPivotsTypeConverter : NinjaTrader.NinjaScript.IndicatorBaseConverter
 	{
 		public override bool GetPropertiesSupported(ITypeDescriptorContext context) { return true; }
 
@@ -471,7 +471,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		{
 			PropertyDescriptorCollection propertyDescriptorCollection = base.GetPropertiesSupported(context) ? base.GetProperties(context, value, attributes) : TypeDescriptor.GetProperties(value, attributes);
 
-			FibonacciPivotsCargocult	thisPivotsInstance			= (FibonacciPivotsCargocult) value;
+			CargocultFibonacciPivots	thisPivotsInstance			= (CargocultFibonacciPivots) value;
 			HLCCalculationMode	selectedHLCCalculationMode	= thisPivotsInstance.PriorDayHlc;
 			if (selectedHLCCalculationMode == HLCCalculationMode.UserDefinedValues)
 				return propertyDescriptorCollection;
@@ -495,19 +495,19 @@ namespace NinjaTrader.NinjaScript.Indicators
 {
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
-		private FibonacciPivotsCargocult[] cacheFibonacciPivotsCargocult;
-		public FibonacciPivotsCargocult FibonacciPivotsCargocult(PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
+		private CargocultFibonacciPivots[] cacheCargocultFibonacciPivots;
+		public CargocultFibonacciPivots CargocultFibonacciPivots(PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
 		{
-			return FibonacciPivotsCargocult(Input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
+			return CargocultFibonacciPivots(Input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
 		}
 
-		public FibonacciPivotsCargocult FibonacciPivotsCargocult(ISeries<double> input, PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
+		public CargocultFibonacciPivots CargocultFibonacciPivots(ISeries<double> input, PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
 		{
-			if (cacheFibonacciPivotsCargocult != null)
-				for (int idx = 0; idx < cacheFibonacciPivotsCargocult.Length; idx++)
-					if (cacheFibonacciPivotsCargocult[idx] != null && cacheFibonacciPivotsCargocult[idx].PivotRangeType == pivotRangeType && cacheFibonacciPivotsCargocult[idx].PriorDayHlc == priorDayHlc && cacheFibonacciPivotsCargocult[idx].UserDefinedClose == userDefinedClose && cacheFibonacciPivotsCargocult[idx].UserDefinedHigh == userDefinedHigh && cacheFibonacciPivotsCargocult[idx].UserDefinedLow == userDefinedLow && cacheFibonacciPivotsCargocult[idx].Width == width && cacheFibonacciPivotsCargocult[idx].EqualsInput(input))
-						return cacheFibonacciPivotsCargocult[idx];
-			return CacheIndicator<FibonacciPivotsCargocult>(new FibonacciPivotsCargocult(){ PivotRangeType = pivotRangeType, PriorDayHlc = priorDayHlc, UserDefinedClose = userDefinedClose, UserDefinedHigh = userDefinedHigh, UserDefinedLow = userDefinedLow, Width = width }, input, ref cacheFibonacciPivotsCargocult);
+			if (cacheCargocultFibonacciPivots != null)
+				for (int idx = 0; idx < cacheCargocultFibonacciPivots.Length; idx++)
+					if (cacheCargocultFibonacciPivots[idx] != null && cacheCargocultFibonacciPivots[idx].PivotRangeType == pivotRangeType && cacheCargocultFibonacciPivots[idx].PriorDayHlc == priorDayHlc && cacheCargocultFibonacciPivots[idx].UserDefinedClose == userDefinedClose && cacheCargocultFibonacciPivots[idx].UserDefinedHigh == userDefinedHigh && cacheCargocultFibonacciPivots[idx].UserDefinedLow == userDefinedLow && cacheCargocultFibonacciPivots[idx].Width == width && cacheCargocultFibonacciPivots[idx].EqualsInput(input))
+						return cacheCargocultFibonacciPivots[idx];
+			return CacheIndicator<CargocultFibonacciPivots>(new CargocultFibonacciPivots(){ PivotRangeType = pivotRangeType, PriorDayHlc = priorDayHlc, UserDefinedClose = userDefinedClose, UserDefinedHigh = userDefinedHigh, UserDefinedLow = userDefinedLow, Width = width }, input, ref cacheCargocultFibonacciPivots);
 		}
 	}
 }
@@ -516,14 +516,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.FibonacciPivotsCargocult FibonacciPivotsCargocult(PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
+		public Indicators.CargocultFibonacciPivots CargocultFibonacciPivots(PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
 		{
-			return indicator.FibonacciPivotsCargocult(Input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
+			return indicator.CargocultFibonacciPivots(Input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
 		}
 
-		public Indicators.FibonacciPivotsCargocult FibonacciPivotsCargocult(ISeries<double> input , PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
+		public Indicators.CargocultFibonacciPivots CargocultFibonacciPivots(ISeries<double> input , PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
 		{
-			return indicator.FibonacciPivotsCargocult(input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
+			return indicator.CargocultFibonacciPivots(input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
 		}
 	}
 }
@@ -532,14 +532,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.FibonacciPivotsCargocult FibonacciPivotsCargocult(PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
+		public Indicators.CargocultFibonacciPivots CargocultFibonacciPivots(PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
 		{
-			return indicator.FibonacciPivotsCargocult(Input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
+			return indicator.CargocultFibonacciPivots(Input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
 		}
 
-		public Indicators.FibonacciPivotsCargocult FibonacciPivotsCargocult(ISeries<double> input , PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
+		public Indicators.CargocultFibonacciPivots CargocultFibonacciPivots(ISeries<double> input , PivotRange pivotRangeType, HLCCalculationMode priorDayHlc, double userDefinedClose, double userDefinedHigh, double userDefinedLow, int width)
 		{
-			return indicator.FibonacciPivotsCargocult(input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
+			return indicator.CargocultFibonacciPivots(input, pivotRangeType, priorDayHlc, userDefinedClose, userDefinedHigh, userDefinedLow, width);
 		}
 	}
 }

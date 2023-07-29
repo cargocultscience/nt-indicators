@@ -31,7 +31,7 @@
 	namespace NinjaTrader.NinjaScript.Indicators
 	{
 		
-		public class DailyPriceLevelTickDistance : Indicator
+		public class CargocultDailyPriceLevelTickDistance : Indicator
 		{
 			#region Variables
 			private Dictionary<DateTime, List<double>> _levelsByDate;
@@ -178,19 +178,19 @@ namespace NinjaTrader.NinjaScript.Indicators
 {
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
-		private DailyPriceLevelTickDistance[] cacheDailyPriceLevelTickDistance;
-		public DailyPriceLevelTickDistance DailyPriceLevelTickDistance(string levelFileName)
+		private CargocultDailyPriceLevelTickDistance[] cacheCargocultDailyPriceLevelTickDistance;
+		public CargocultDailyPriceLevelTickDistance CargocultDailyPriceLevelTickDistance(string levelFileName)
 		{
-			return DailyPriceLevelTickDistance(Input, levelFileName);
+			return CargocultDailyPriceLevelTickDistance(Input, levelFileName);
 		}
 
-		public DailyPriceLevelTickDistance DailyPriceLevelTickDistance(ISeries<double> input, string levelFileName)
+		public CargocultDailyPriceLevelTickDistance CargocultDailyPriceLevelTickDistance(ISeries<double> input, string levelFileName)
 		{
-			if (cacheDailyPriceLevelTickDistance != null)
-				for (int idx = 0; idx < cacheDailyPriceLevelTickDistance.Length; idx++)
-					if (cacheDailyPriceLevelTickDistance[idx] != null && cacheDailyPriceLevelTickDistance[idx].LevelFileName == levelFileName && cacheDailyPriceLevelTickDistance[idx].EqualsInput(input))
-						return cacheDailyPriceLevelTickDistance[idx];
-			return CacheIndicator<DailyPriceLevelTickDistance>(new DailyPriceLevelTickDistance(){ LevelFileName = levelFileName }, input, ref cacheDailyPriceLevelTickDistance);
+			if (cacheCargocultDailyPriceLevelTickDistance != null)
+				for (int idx = 0; idx < cacheCargocultDailyPriceLevelTickDistance.Length; idx++)
+					if (cacheCargocultDailyPriceLevelTickDistance[idx] != null && cacheCargocultDailyPriceLevelTickDistance[idx].LevelFileName == levelFileName && cacheCargocultDailyPriceLevelTickDistance[idx].EqualsInput(input))
+						return cacheCargocultDailyPriceLevelTickDistance[idx];
+			return CacheIndicator<CargocultDailyPriceLevelTickDistance>(new CargocultDailyPriceLevelTickDistance(){ LevelFileName = levelFileName }, input, ref cacheCargocultDailyPriceLevelTickDistance);
 		}
 	}
 }
@@ -199,14 +199,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.DailyPriceLevelTickDistance DailyPriceLevelTickDistance(string levelFileName)
+		public Indicators.CargocultDailyPriceLevelTickDistance CargocultDailyPriceLevelTickDistance(string levelFileName)
 		{
-			return indicator.DailyPriceLevelTickDistance(Input, levelFileName);
+			return indicator.CargocultDailyPriceLevelTickDistance(Input, levelFileName);
 		}
 
-		public Indicators.DailyPriceLevelTickDistance DailyPriceLevelTickDistance(ISeries<double> input , string levelFileName)
+		public Indicators.CargocultDailyPriceLevelTickDistance CargocultDailyPriceLevelTickDistance(ISeries<double> input , string levelFileName)
 		{
-			return indicator.DailyPriceLevelTickDistance(input, levelFileName);
+			return indicator.CargocultDailyPriceLevelTickDistance(input, levelFileName);
 		}
 	}
 }
@@ -215,14 +215,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.DailyPriceLevelTickDistance DailyPriceLevelTickDistance(string levelFileName)
+		public Indicators.CargocultDailyPriceLevelTickDistance CargocultDailyPriceLevelTickDistance(string levelFileName)
 		{
-			return indicator.DailyPriceLevelTickDistance(Input, levelFileName);
+			return indicator.CargocultDailyPriceLevelTickDistance(Input, levelFileName);
 		}
 
-		public Indicators.DailyPriceLevelTickDistance DailyPriceLevelTickDistance(ISeries<double> input , string levelFileName)
+		public Indicators.CargocultDailyPriceLevelTickDistance CargocultDailyPriceLevelTickDistance(ISeries<double> input , string levelFileName)
 		{
-			return indicator.DailyPriceLevelTickDistance(input, levelFileName);
+			return indicator.CargocultDailyPriceLevelTickDistance(input, levelFileName);
 		}
 	}
 }

@@ -23,7 +23,6 @@
 	using NinjaTrader.Core.FloatingPoint;
 	using NinjaTrader.NinjaScript.DrawingTools;
 	// Manually added:
-	using NinjaTrader.NinjaScript.AddOns;
 	using System.IO;
 	#endregion
 
@@ -31,7 +30,7 @@
 	namespace NinjaTrader.NinjaScript.Indicators
 	{
 		
-		public class DailyPriceLevelsCargocult : Indicator
+		public class CargocultDailyPriceLevels : Indicator
 		{
 			#region Variables
 			private Dictionary<DateTime, List<double>> _levelsByDate;
@@ -239,19 +238,19 @@ namespace NinjaTrader.NinjaScript.Indicators
 {
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
-		private DailyPriceLevelsCargocult[] cacheDailyPriceLevelsCargocult;
-		public DailyPriceLevelsCargocult DailyPriceLevelsCargocult(string levelFileName, int levelLineWidth, int levelLineOpacity)
+		private CargocultDailyPriceLevels[] cacheCargocultDailyPriceLevels;
+		public CargocultDailyPriceLevels CargocultDailyPriceLevels(string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return DailyPriceLevelsCargocult(Input, levelFileName, levelLineWidth, levelLineOpacity);
+			return CargocultDailyPriceLevels(Input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 
-		public DailyPriceLevelsCargocult DailyPriceLevelsCargocult(ISeries<double> input, string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public CargocultDailyPriceLevels CargocultDailyPriceLevels(ISeries<double> input, string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			if (cacheDailyPriceLevelsCargocult != null)
-				for (int idx = 0; idx < cacheDailyPriceLevelsCargocult.Length; idx++)
-					if (cacheDailyPriceLevelsCargocult[idx] != null && cacheDailyPriceLevelsCargocult[idx].LevelFileName == levelFileName && cacheDailyPriceLevelsCargocult[idx].LevelLineWidth == levelLineWidth && cacheDailyPriceLevelsCargocult[idx].LevelLineOpacity == levelLineOpacity && cacheDailyPriceLevelsCargocult[idx].EqualsInput(input))
-						return cacheDailyPriceLevelsCargocult[idx];
-			return CacheIndicator<DailyPriceLevelsCargocult>(new DailyPriceLevelsCargocult(){ LevelFileName = levelFileName, LevelLineWidth = levelLineWidth, LevelLineOpacity = levelLineOpacity }, input, ref cacheDailyPriceLevelsCargocult);
+			if (cacheCargocultDailyPriceLevels != null)
+				for (int idx = 0; idx < cacheCargocultDailyPriceLevels.Length; idx++)
+					if (cacheCargocultDailyPriceLevels[idx] != null && cacheCargocultDailyPriceLevels[idx].LevelFileName == levelFileName && cacheCargocultDailyPriceLevels[idx].LevelLineWidth == levelLineWidth && cacheCargocultDailyPriceLevels[idx].LevelLineOpacity == levelLineOpacity && cacheCargocultDailyPriceLevels[idx].EqualsInput(input))
+						return cacheCargocultDailyPriceLevels[idx];
+			return CacheIndicator<CargocultDailyPriceLevels>(new CargocultDailyPriceLevels(){ LevelFileName = levelFileName, LevelLineWidth = levelLineWidth, LevelLineOpacity = levelLineOpacity }, input, ref cacheCargocultDailyPriceLevels);
 		}
 	}
 }
@@ -260,14 +259,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.DailyPriceLevelsCargocult DailyPriceLevelsCargocult(string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return indicator.DailyPriceLevelsCargocult(Input, levelFileName, levelLineWidth, levelLineOpacity);
+			return indicator.CargocultDailyPriceLevels(Input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 
-		public Indicators.DailyPriceLevelsCargocult DailyPriceLevelsCargocult(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return indicator.DailyPriceLevelsCargocult(input, levelFileName, levelLineWidth, levelLineOpacity);
+			return indicator.CargocultDailyPriceLevels(input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 	}
 }
@@ -276,14 +275,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.DailyPriceLevelsCargocult DailyPriceLevelsCargocult(string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return indicator.DailyPriceLevelsCargocult(Input, levelFileName, levelLineWidth, levelLineOpacity);
+			return indicator.CargocultDailyPriceLevels(Input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 
-		public Indicators.DailyPriceLevelsCargocult DailyPriceLevelsCargocult(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity)
 		{
-			return indicator.DailyPriceLevelsCargocult(input, levelFileName, levelLineWidth, levelLineOpacity);
+			return indicator.CargocultDailyPriceLevels(input, levelFileName, levelLineWidth, levelLineOpacity);
 		}
 	}
 }
