@@ -72,7 +72,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if (State == State.SetDefaults)
 			{
 				Description				= "fibs";
-				Name					= "CargocultFibonacciPivots";
+				Name					= "Cargocult FibonacciPivots";
 				Calculate				= Calculate.OnBarClose;
 				DisplayInDataBox		= true;
 				DrawOnPricePanel		= false;

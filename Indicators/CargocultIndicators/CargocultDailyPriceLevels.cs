@@ -36,7 +36,7 @@
 			private Dictionary<DateTime, List<double>> _levelsByDate;
 			private DateTime _lastFileModifiedDate;
 			private long _lastMaxLevels;
-			private static string version = "1.4.0";
+			private static string version = "1.5.0";
 			private Series<double> currentUpperLevel;
 			private Series<double> currentLowerLevel;
 			#endregion
@@ -97,7 +97,7 @@
 				if (State == State.SetDefaults)
 				{
 					Description									= @"Draws prices levels as an time series indicator values";
-					Name										= "Daily Price Levels Cargocult";
+					Name										= "Cargocult Daily Price Levels";
 					Calculate									= Calculate.OnBarClose;
 					IsOverlay									= true;
 					DisplayInDataBox							= false;

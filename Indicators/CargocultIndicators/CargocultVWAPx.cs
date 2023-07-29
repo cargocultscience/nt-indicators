@@ -39,7 +39,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if (State == State.SetDefaults)
 			{
 				Description							= @"Volume Weighted Average Price";
-				Name								= "CargocultVWAPx";
+				Name								= "Cargocult VWAPx";
 				Calculate							= Calculate.OnBarClose;
 				IsOverlay							= true;
 				DisplayInDataBox					= true;

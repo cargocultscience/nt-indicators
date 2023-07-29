@@ -89,7 +89,7 @@
 				if (State == State.SetDefaults)
 				{
 					Description									= @"Draws a line that represents the number of ticks away last price is from the nearest price level";
-					Name										= "Daily Price Levels Tick Distance Cargocult";
+					Name										= "Cargocult Daily Price Levels Tick Distance";
 					Calculate									= Calculate.OnEachTick;
 					IsOverlay									= true;
 					DisplayInDataBox							= false;

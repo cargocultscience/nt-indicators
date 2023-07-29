@@ -41,7 +41,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if (State == State.SetDefaults)
 			{
 				Description					= NinjaTrader.Custom.Resource.NinjaScriptIndicatorDescriptionZLEMA;
-				Name						= "CargocultZLEMA";
+				Name						= "Cargocult ZLEMA";
 				IsSuspendedWhileInactive	= true;
 				IsOverlay					= true;
 				Period						= 14;
