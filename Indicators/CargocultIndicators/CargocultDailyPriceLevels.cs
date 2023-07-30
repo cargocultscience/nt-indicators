@@ -84,7 +84,7 @@
 						maxLevels = Math.Max(levels.Length, maxLevels);
 						foreach(string level in levels)
 						{				
-							_levelsByDate[date.Date].Add(double.Parse(level));
+							_levelsByDate[date.Date].Add(double.Parse(level, culture));
 						}
 						line = reader.ReadLine();
 					}
