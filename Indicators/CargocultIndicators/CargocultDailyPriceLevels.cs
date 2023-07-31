@@ -36,7 +36,7 @@
 			private Dictionary<DateTime, List<double>> _levelsByDate;
 			private DateTime _lastFileModifiedDate;
 			private long _lastMaxLevels;
-			private static string version = "1.5.0";
+			private static string version = "1.5.1";
 			private Series<double> currentUpperLevel;
 			private Series<double> currentLowerLevel;
 			#endregion
