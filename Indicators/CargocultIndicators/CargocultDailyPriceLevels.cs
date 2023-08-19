@@ -25,17 +25,24 @@
 	using System.Linq;
 	// Manually added:
 	using System.IO;
+
 	#endregion
-	
+
+
 	//This namespace holds Indicators in this folder and is required. Do not change it. 
 	namespace NinjaTrader.NinjaScript.Indicators
 	{
+		using Levels = List<double>;
+		using DateLevelsPair = KeyValuePair<DateTime, List<double>>;
+		using LevelsDictionary = SortedDictionary<DateTime, List<double>>;
+		using ChartDateToLevelsDateDictionary = Dictionary<DateTime, KeyValuePair<DateTime, List<double>>>;
 		
 		public class CargocultDailyPriceLevels : Indicator
 		{
 			#region Variables
-			private SortedDictionary<DateTime, List<double>> _levelsByDate;
-			private Dictionary<DateTime, KeyValuePair<DateTime, List<double>>> _chartDateToLevelsDateCache;
+			
+			private LevelsDictionary _levelsByDate;
+			private ChartDateToLevelsDateDictionary _chartDateToLevelsDateCache;
 			private DateTime _lastFileModifiedDate;
 			private static string version = "1.6.0";
 			private Series<double> currentUpperLevel;
@@ -45,7 +52,7 @@
 			private void resetCache()
 			{
 				Log("Resetting chart date to level date cache", LogLevel.Information);
-				_chartDateToLevelsDateCache = new Dictionary<DateTime, KeyValuePair<DateTime, List<double>>>();
+				_chartDateToLevelsDateCache = new ChartDateToLevelsDateDictionary();
 			}
 			private void readCSV(string filename)
 			{
@@ -70,10 +77,10 @@
 				var fileModifiedDate = File.GetLastWriteTime(resolved_filename);
 				if(fileModifiedDate == _lastFileModifiedDate)
 				{
-					return;;
+					return;
 				}
 				_lastFileModifiedDate = fileModifiedDate;
-				_levelsByDate = new SortedDictionary<DateTime, List<double>>();	
+				_levelsByDate = new LevelsDictionary();
 				// reset cache as mapping may be invalid with new file
 				resetCache();
 				long maxLevels = 0;
@@ -135,7 +142,7 @@
 					currentLowerLevel			= new Series<double>(this);
 					readCSV(LevelFileName);
 					long maxLevels = 25;
-					foreach(KeyValuePair<DateTime, List<double>> entry in _levelsByDate)
+					foreach(var entry in _levelsByDate)
 					{
 						maxLevels = Math.Max(maxLevels, entry.Value.Count);
 					}
@@ -147,7 +154,7 @@
 				}
 			}
 
-			private KeyValuePair<DateTime, List<double>> getLevelsForDate()
+			private DateLevelsPair getLevelsForDate()
 			{
 				var currentDate = Time[0].Date;
 				if(_chartDateToLevelsDateCache.ContainsKey(currentDate))
@@ -157,7 +164,7 @@
 				else 
 				{
 					var kv = _levelsByDate.LastOrDefault(x => ( x.Key <= currentDate && (currentDate - x.Key).Days <= MaxDayCarryForward) );
-					_chartDateToLevelsDateCache[currentDate] = kv;
+					_chartDateToLevelsDateCache.Add(currentDate, kv);
 					var levelsFileDate = kv.Key;
 					var logLevel = levelsFileDate == currentDate ? LogLevel.Information : levelsFileDate < currentDate ? LogLevel.Warning : LogLevel.Error;
 					Log(String.Format("Using file level date: {0} for chart date: {1} maxDayCarryFoward: {2} symbol: {3}", 
@@ -166,9 +173,9 @@
 				}
 			}
 				
-			private bool isLevelKVValid(KeyValuePair<DateTime, List<double>> levelsKV)
+			private bool isDateInvalid(DateLevelsPair levelsKV)
 			{
-				return !levelsKV.Equals(default(KeyValuePair<DateTime, List<double>>));
+				return levelsKV.Equals(default(DateLevelsPair));
 			}
 			
 			protected override void OnBarUpdate()
@@ -180,11 +187,10 @@
 				
 				var levelsKV = getLevelsForDate();
 				
-				if(!isLevelKVValid(levelsKV))
+				if(isDateInvalid(levelsKV))
 				{
 					if(VerboseLogging) 
 					{
-						// TODO cargo - once caching is implemented, always log this
 						Log(String.Format("No file date for chart date: {0} maxDayCarryForward {1} symbol: {2}", 
 						currentDate, MaxDayCarryForward, Instrument.MasterInstrument.Name.ToLower()), LogLevel.Error);
 					}
@@ -198,16 +204,15 @@
 					int counter = 0;
 					var levelsFileDate = levelsKV.Key;
 					var plotColor = levelsFileDate != currentDate ? CarriedLevelLineColor : LevelLineColor;
-					foreach(double level in levelsKV.Value)
+					if(VerboseLogging) 
 					{
-						// TODO cargo - once caching is implemented, always log this
-						if(VerboseLogging) 
-						{
-							var logLevel = levelsFileDate == currentDate ? LogLevel.Information : levelsFileDate < currentDate ? LogLevel.Warning : LogLevel.Error;
-							Log(String.Format("Using file level date: {0} for chart date: {1} maxDayCarryFoward: {2} symbol: {3}", 
-								levelsFileDate, currentDate, MaxDayCarryForward, Instrument.MasterInstrument.Name.ToLower()), logLevel);
-						}
-		
+						var logLevel = levelsFileDate == currentDate ? LogLevel.Information : levelsFileDate < currentDate ? LogLevel.Warning : LogLevel.Error;
+						Log(String.Format("Using file level date: {0} for chart date: {1} maxDayCarryFoward: {2} symbol: {3}", 
+							levelsFileDate, currentDate, MaxDayCarryForward, Instrument.MasterInstrument.Name.ToLower()), logLevel);
+					}
+
+					foreach(var level in levelsKV.Value)
+					{
 						if(counter >= Values.Length) 
 						{
 							Log("More levels added than plots - please refresh your chart using F5", LogLevel.Error);
