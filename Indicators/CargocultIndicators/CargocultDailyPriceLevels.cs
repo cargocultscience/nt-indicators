@@ -37,7 +37,6 @@
 			private SortedDictionary<DateTime, List<double>> _levelsByDate;
 			private Dictionary<DateTime, KeyValuePair<DateTime, List<double>>> _chartDateToLevelsDateCache;
 			private DateTime _lastFileModifiedDate;
-			private long _lastMaxLevels;
 			private static string version = "1.6.0";
 			private Series<double> currentUpperLevel;
 			private Series<double> currentLowerLevel;
@@ -124,9 +123,9 @@
 					LevelLineWidth = 2;
 					LevelLineOpacity = 50;
 					LevelLineType = DashStyleHelper.Dot;
+					CarriedLevelLineColor = Brushes.Thistle;
 					MaxDayCarryForward = 1;
 					VerboseLogging = false;
-					// todo - cargo - figure out if this is the best place for a reset of cache
 					resetCache();
 					Log("Daily Price Levels by Cargocult version " + version, LogLevel.Information);
 				}
@@ -135,13 +134,13 @@
 					currentUpperLevel 			= new Series<double>(this);
 					currentLowerLevel			= new Series<double>(this);
 					readCSV(LevelFileName);
-					long maxNumberOfLevels = 25;
+					long maxLevels = 25;
 					foreach(KeyValuePair<DateTime, List<double>> entry in _levelsByDate)
 					{
-						maxNumberOfLevels = Math.Max(maxNumberOfLevels, entry.Value.Count);
+						maxLevels = Math.Max(maxLevels, entry.Value.Count);
 					}
 				
-					for(int i=0; i < maxNumberOfLevels; ++i) 
+					for(int i=0; i < maxLevels; ++i) 
 					{
 						AddPlot(new Stroke(LevelLineColor, LevelLineType, LevelLineWidth, LevelLineOpacity), PlotStyle.HLine, "level_" + i);
 					}
@@ -198,6 +197,7 @@
 					double closest_level = double.NaN;
 					int counter = 0;
 					var levelsFileDate = levelsKV.Key;
+					var plotColor = levelsFileDate != currentDate ? CarriedLevelLineColor : LevelLineColor;
 					foreach(double level in levelsKV.Value)
 					{
 						// TODO cargo - once caching is implemented, always log this
@@ -213,7 +213,10 @@
 							Log("More levels added than plots - please refresh your chart using F5", LogLevel.Error);
 							return;
 						}
+						
+						PlotBrushes[counter][0] = plotColor;
 						Values[counter++][0] = level;
+						
 						if(level >= input0) 
 						{
 							if(double.IsNaN(upper_level) || level < upper_level)
@@ -272,13 +275,11 @@
 			}
 			
 			[Range(1, int.MaxValue)]
-			[NinjaScriptProperty]
 			[Display(Name="Level Line Width", Description="Width of level line", Order=4, GroupName="Level Parameters")]
 			public int LevelLineWidth
 			{ get; set; }
 
 			[Range(1, 100)]
-			[NinjaScriptProperty]
 			[Display(Name="Level Line Opacity", Description="Opacity of level line", Order=5, GroupName="Level Parameters")]
 			public int LevelLineOpacity
 			{ get; set; }
@@ -287,11 +288,23 @@
 			public DashStyleHelper LevelLineType
 			{ get; set; }
 			
-			[Display(Name="Max Day Carry Forward", Description="Use the most recent date's data if current date less than or equal to this many days ahead in time", Order=7, GroupName="Level Parameters")]
+			[Display(Name="Max Day Carry Forward", Description="Use the most recent date's data if current date less than or equal to this many days ahead in time", Order=9, GroupName="Level Parameters")]
 			[Range(0, 10000)]
 			public int MaxDayCarryForward
 			{ get; set; }
 
+			[XmlIgnore()]
+			[Display(Name = "Carry Forward Level Line Color", Description = "Color of carry forward level line", Order = 10, GroupName="Level Parameters")]
+			public Brush CarriedLevelLineColor
+			{ get; set; }
+					 
+			[Browsable(false)]
+			public string CarriedLineColorSerialize
+			{
+				get { return Serialize.BrushToString(CarriedLevelLineColor); }
+	   			set { CarriedLevelLineColor = Serialize.StringToBrush(value); }
+			}
+			
 			[Display(Name="Verbose Logging", Description="Log more info about what the indicator is doing", Order=1, GroupName="Misc")]
 			public bool VerboseLogging
 			{ get; set; }
@@ -308,18 +321,18 @@ namespace NinjaTrader.NinjaScript.Indicators
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
 		private CargocultDailyPriceLevels[] cacheCargocultDailyPriceLevels;
-		public CargocultDailyPriceLevels CargocultDailyPriceLevels(string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public CargocultDailyPriceLevels CargocultDailyPriceLevels(string levelFileName)
 		{
-			return CargocultDailyPriceLevels(Input, levelFileName, levelLineWidth, levelLineOpacity);
+			return CargocultDailyPriceLevels(Input, levelFileName);
 		}
 
-		public CargocultDailyPriceLevels CargocultDailyPriceLevels(ISeries<double> input, string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public CargocultDailyPriceLevels CargocultDailyPriceLevels(ISeries<double> input, string levelFileName)
 		{
 			if (cacheCargocultDailyPriceLevels != null)
 				for (int idx = 0; idx < cacheCargocultDailyPriceLevels.Length; idx++)
-					if (cacheCargocultDailyPriceLevels[idx] != null && cacheCargocultDailyPriceLevels[idx].LevelFileName == levelFileName && cacheCargocultDailyPriceLevels[idx].LevelLineWidth == levelLineWidth && cacheCargocultDailyPriceLevels[idx].LevelLineOpacity == levelLineOpacity && cacheCargocultDailyPriceLevels[idx].EqualsInput(input))
+					if (cacheCargocultDailyPriceLevels[idx] != null && cacheCargocultDailyPriceLevels[idx].LevelFileName == levelFileName && cacheCargocultDailyPriceLevels[idx].EqualsInput(input))
 						return cacheCargocultDailyPriceLevels[idx];
-			return CacheIndicator<CargocultDailyPriceLevels>(new CargocultDailyPriceLevels(){ LevelFileName = levelFileName, LevelLineWidth = levelLineWidth, LevelLineOpacity = levelLineOpacity }, input, ref cacheCargocultDailyPriceLevels);
+			return CacheIndicator<CargocultDailyPriceLevels>(new CargocultDailyPriceLevels(){ LevelFileName = levelFileName }, input, ref cacheCargocultDailyPriceLevels);
 		}
 	}
 }
@@ -328,14 +341,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(string levelFileName)
 		{
-			return indicator.CargocultDailyPriceLevels(Input, levelFileName, levelLineWidth, levelLineOpacity);
+			return indicator.CargocultDailyPriceLevels(Input, levelFileName);
 		}
 
-		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(ISeries<double> input , string levelFileName)
 		{
-			return indicator.CargocultDailyPriceLevels(input, levelFileName, levelLineWidth, levelLineOpacity);
+			return indicator.CargocultDailyPriceLevels(input, levelFileName);
 		}
 	}
 }
@@ -344,14 +357,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(string levelFileName)
 		{
-			return indicator.CargocultDailyPriceLevels(Input, levelFileName, levelLineWidth, levelLineOpacity);
+			return indicator.CargocultDailyPriceLevels(Input, levelFileName);
 		}
 
-		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(ISeries<double> input , string levelFileName, int levelLineWidth, int levelLineOpacity)
+		public Indicators.CargocultDailyPriceLevels CargocultDailyPriceLevels(ISeries<double> input , string levelFileName)
 		{
-			return indicator.CargocultDailyPriceLevels(input, levelFileName, levelLineWidth, levelLineOpacity);
+			return indicator.CargocultDailyPriceLevels(input, levelFileName);
 		}
 	}
 }

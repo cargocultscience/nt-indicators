@@ -44,7 +44,7 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 			{
 				// ::Filename format - Indicator will replace the text <symbol> with whatever the base symbol name is (eg spy, es, nq, meq, mes)
 				string resolved_filename = LevelsFilename.Replace("<symbol>", Instrument.MasterInstrument.Name.ToLower());
-				indicator = CargocultDailyPriceLevels(resolved_filename, 1, 100);
+				indicator = CargocultDailyPriceLevels(resolved_filename);
 			}
 		}
 
