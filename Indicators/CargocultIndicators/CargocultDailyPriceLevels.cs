@@ -32,10 +32,12 @@
 	//This namespace holds Indicators in this folder and is required. Do not change it. 
 	namespace NinjaTrader.NinjaScript.Indicators
 	{
-		using Levels = List<double>;
-		using DateLevelsPair = KeyValuePair<DateTime, List<double>>;
-		using LevelsDictionary = SortedDictionary<DateTime, List<double>>;
-		using ChartDateToLevelsDateDictionary = Dictionary<DateTime, KeyValuePair<DateTime, List<double>>>;
+		// the bool is true of the level is not for the given day
+		// TODO replace bool with an enum or something self descriptive
+		using Levels = Dictionary<double, bool>;
+		using DateLevelsPair = KeyValuePair<DateTime, Dictionary<double, bool>>;
+		using LevelsDictionary = SortedDictionary<DateTime, Dictionary<double, bool>>;
+		using ChartDateToLevelsDateDictionary = Dictionary<DateTime, KeyValuePair<DateTime, Dictionary<double, bool>>>;
 		
 		public class CargocultDailyPriceLevels : Indicator
 		{
@@ -44,7 +46,7 @@
 			private LevelsDictionary _levelsByDate;
 			private ChartDateToLevelsDateDictionary _chartDateToLevelsDateCache;
 			private DateTime _lastFileModifiedDate;
-			private static string version = "1.6.0";
+			private static string version = "1.7.0";
 			private Series<double> currentUpperLevel;
 			private Series<double> currentLowerLevel;
 			#endregion
@@ -94,18 +96,36 @@
 						string[] fields = line.Split('|');
 						CultureInfo culture = new CultureInfo("en-US");
 						DateTime date = DateTime.ParseExact(fields[0].Trim(), "yyyy-MM-dd", culture);
-						_levelsByDate.Add(date.Date, new List<Double>());
+						_levelsByDate.Add(date.Date, new Levels());
 						string [] levels =  fields[1].Split(',');
 						maxLevels = Math.Max(levels.Length, maxLevels);
 						foreach(string level in levels)
 						{				
-							_levelsByDate[date.Date].Add(double.Parse(level, culture));
+							_levelsByDate[date.Date][double.Parse(level, culture)] = false;
 						}
 						
 						line = reader.ReadLine();
 					}
 				}
 				Log(Name + " read file " + resolved_filename + " with modified date of " + _lastFileModifiedDate + " and maxLevels " + maxLevels, LogLevel.Information);
+				
+				foreach(var currentDateKV in _levelsByDate)
+				{
+					foreach(var oldDatesKV in _levelsByDate.Where(x => (x.Key < currentDateKV.Key && ((currentDateKV.Key - x.Key).Days <= MaxPriorDaysInDay))))
+					{
+						foreach(var levelsKV in oldDatesKV.Value)
+						{
+							if(!currentDateKV.Value.ContainsKey(levelsKV.Key))
+							{
+								currentDateKV.Value[levelsKV.Key] = true;
+								if(VerboseLogging)
+								{
+									Log(String.Format("For date {0} will include price {3} from historical date {1} max prior days {2}",  currentDateKV.Key.ToString(), oldDatesKV.Key.ToString(), MaxPriorDaysInDay, levelsKV.Key), LogLevel.Information);
+								}
+							}
+						}
+					}
+				}
 			}
 
 			protected override void OnStateChange()
@@ -131,7 +151,9 @@
 					LevelLineOpacity = 50;
 					LevelLineType = DashStyleHelper.Dot;
 					CarriedLevelLineColor = Brushes.Thistle;
-					MaxDayCarryForward = 1;
+					PriorDayLevelLineColor = Brushes.Orange;
+					MaxDayCarryForward = 3;
+					MaxPriorDaysInDay = 7;
 					VerboseLogging = false;
 					resetCache();
 					Log("Daily Price Levels by Cargocult version " + version, LogLevel.Information);
@@ -203,7 +225,6 @@
 					double closest_level = double.NaN;
 					int counter = 0;
 					var levelsFileDate = levelsKV.Key;
-					var plotColor = levelsFileDate != currentDate ? CarriedLevelLineColor : LevelLineColor;
 					if(VerboseLogging) 
 					{
 						var logLevel = levelsFileDate == currentDate ? LogLevel.Information : levelsFileDate < currentDate ? LogLevel.Warning : LogLevel.Error;
@@ -211,7 +232,7 @@
 							levelsFileDate, currentDate, MaxDayCarryForward, Instrument.MasterInstrument.Name.ToLower()), logLevel);
 					}
 
-					foreach(var level in levelsKV.Value)
+					foreach(var levelKV in levelsKV.Value)
 					{
 						if(counter >= Values.Length) 
 						{
@@ -219,7 +240,9 @@
 							return;
 						}
 						
-						PlotBrushes[counter][0] = plotColor;
+						PlotBrushes[counter][0] = levelKV.Value ? PriorDayLevelLineColor : levelsFileDate == currentDate ? LevelLineColor : CarriedLevelLineColor;
+						
+						var level = levelKV.Key;
 						Values[counter++][0] = level;
 						
 						if(level >= input0) 
@@ -302,13 +325,33 @@
 			[Display(Name = "Carry Forward Level Line Color", Description = "Color of carry forward level line", Order = 10, GroupName="Level Parameters")]
 			public Brush CarriedLevelLineColor
 			{ get; set; }
-					 
+
+			
 			[Browsable(false)]
 			public string CarriedLineColorSerialize
 			{
 				get { return Serialize.BrushToString(CarriedLevelLineColor); }
 	   			set { CarriedLevelLineColor = Serialize.StringToBrush(value); }
 			}
+			
+			[Display(Name="Max Prior Days In Day", Description="Use the most recent date's data if current date less than or equal to this many days ahead in time", Order=11, GroupName="Level Parameters")]
+			[Range(0, 10000)]
+			public int MaxPriorDaysInDay
+			{ get; set; }
+
+			[XmlIgnore()]
+			[Display(Name = "Prior Day Line Color", Description = "Color of carry forward level line", Order = 12, GroupName="Level Parameters")]
+			public Brush PriorDayLevelLineColor
+			{ get; set; }
+
+			
+			[Browsable(false)]
+			public string PriorDayLevelLineColorSerialize
+			{
+				get { return Serialize.BrushToString(PriorDayLevelLineColor); }
+	   			set { PriorDayLevelLineColor = Serialize.StringToBrush(value); }
+			}
+
 			
 			[Display(Name="Verbose Logging", Description="Log more info about what the indicator is doing", Order=1, GroupName="Misc")]
 			public bool VerboseLogging
