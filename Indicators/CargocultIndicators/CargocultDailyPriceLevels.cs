@@ -46,7 +46,7 @@
 			private LevelsDictionary _levelsByDate;
 			private ChartDateToLevelsDateDictionary _chartDateToLevelsDateCache;
 			private DateTime _lastFileModifiedDate;
-			private static string version = "1.7.0";
+			private static string version = "1.8.0";
 			private Series<double> currentUpperLevel;
 			private Series<double> currentLowerLevel;
 			#endregion
