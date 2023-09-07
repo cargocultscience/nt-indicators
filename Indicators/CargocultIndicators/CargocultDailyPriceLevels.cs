@@ -69,7 +69,8 @@
 				2023-07-05 | p1, p2, p3, p5, p6, p7
 				
 				*/
-				string resolved_filename = filename.Replace("<symbol>", Instrument.MasterInstrument.Name.ToLower());
+				string master_symbol = Instrument.MasterInstrument.Name.ToLower();
+				string resolved_filename = filename.Replace("<symbol>", master_symbol);
 				if (!File.Exists(resolved_filename))
 				{
 					Log("File " + resolved_filename + " not found", LogLevel.Error);
@@ -86,18 +87,40 @@
 				// reset cache as mapping may be invalid with new file
 				resetCache();
 				long maxLevels = 0;
+				CultureInfo culture = new CultureInfo("en-US");
 				using(StreamReader reader = new StreamReader(resolved_filename))
 				{
 					string line = reader.ReadLine();
 					// skip header
 					line = reader.ReadLine();
+					int levels_index = 1;
+					int symbol_index = -1;
+					if(line.Split('|').Count() == 3)
+					{
+						symbol_index = 1;
+						levels_index = 2;
+						Log("Detected multi instrument version of input file", LogLevel.Information);
+					}
+					else 
+					{
+						Log("Detected single instrument version of input file", LogLevel.Information);
+					}
+				 
 					while (line != null) 
 					{
 						string[] fields = line.Split('|');
-						CultureInfo culture = new CultureInfo("en-US");
 						DateTime date = DateTime.ParseExact(fields[0].Trim(), "yyyy-MM-dd", culture);
+						if(symbol_index == 1)
+						{
+							var symbol = fields[symbol_index].ToLower().Trim();
+							if(symbol != master_symbol)
+							{
+								line = reader.ReadLine();
+								continue;
+							}
+						}
 						_levelsByDate.Add(date.Date, new Levels());
-						string [] levels =  fields[1].Split(',');
+						string [] levels =  fields[levels_index].Split(',');
 						maxLevels = Math.Max(levels.Length, maxLevels);
 						foreach(string level in levels)
 						{				
