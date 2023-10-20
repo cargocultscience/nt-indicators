@@ -65,6 +65,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 			}
 			else if (State == State.Configure)
 			{
+				// TODO create EMA class in AddOns
 				rangeEMACurrentWeight = 2.0 / (1 + Period);
 				rangeEMAPriorWeight = 1 - rangeEMACurrentWeight;
 				
@@ -81,102 +82,84 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if(CurrentBar == 0)
 			{
 				RangeFilter[0] = Input[0];
+				return;
 			}
-			else 
+
+			double currentPrice = Input[0];
+			double priceChange = Math.Abs(currentPrice - Input[1]);
+			rangeEMA = priceChange * rangeEMACurrentWeight + rangeEMA * rangeEMAPriorWeight;
+				
+			double smoothRangeEMAWithMultiplier = smoothRangeEMA * RangeMultiplier; // confirm we are really supposed to use prior
+			smoothRangeEMA = rangeEMA * smoothRangeEMACurrentWeight + smoothRangeEMA * smoothRangeEMAPriorWeight;
+				
+				
+			if(currentPrice > RangeFilter[1])
 			{
-				double currentPrice = Input[0];
-				double priceChange = Math.Abs(currentPrice - Input[1]);
-				rangeEMA = priceChange * rangeEMACurrentWeight + rangeEMA * rangeEMAPriorWeight;
-				
-				double smoothRangeEMAWithMultiplier = smoothRangeEMA * RangeMultiplier; // confirm we are really supposed to use prior
-				smoothRangeEMA = rangeEMA * smoothRangeEMACurrentWeight + smoothRangeEMA * smoothRangeEMAPriorWeight;
-				
-				
-				if(currentPrice > RangeFilter[1])
+				if(currentPrice - smoothRangeEMAWithMultiplier < RangeFilter[1])
 				{
-					if((currentPrice - smoothRangeEMAWithMultiplier) < RangeFilter[1])
-					{
-						RangeFilter[0] = RangeFilter[1]; 
-					}
-					else 
-					{
-						RangeFilter[0] = currentPrice - smoothRangeEMAWithMultiplier;
-					}
+					RangeFilter[0] = RangeFilter[1]; 
 				}
 				else 
 				{
-					if((currentPrice + smoothRangeEMAWithMultiplier) > RangeFilter[1])
-					{
-						RangeFilter[0] = RangeFilter[1];
-					}
-					else
-					{
-						RangeFilter[0] = currentPrice + smoothRangeEMAWithMultiplier;
-					}
+					RangeFilter[0] = currentPrice - smoothRangeEMAWithMultiplier;
 				}
-				
-				HighTarget[0] = RangeFilter[0] + smoothRangeEMAWithMultiplier;
-				LowTarget[0] = RangeFilter[0] - smoothRangeEMAWithMultiplier;
-				
-				if(RangeFilter[0] > RangeFilter[1]) 
-				{
-					upCounter +=1;
-					downCounter = 0;
-					
-				}
-				else if(RangeFilter[0] < RangeFilter[1])
-				{
-					upCounter = 0;
-					downCounter += 1;
-					
-				}
-				
-				bool longCondition = currentPrice > RangeFilter[0] && upCounter > 0;
-				bool shortCondition = currentPrice < RangeFilter[0] && downCounter > 0;
-				
-				/*
-				// Break Outs
-				longCond = bool(na)
-				shortCond = bool(na)
-				longCond := src > filt and src > src[1] and upward > 0 or 
-				   src > filt and src < src[1] and upward > 0
-				shortCond := src < filt and src < src[1] and downward > 0 or 
-				   src < filt and src > src[1] and downward > 0
-
-				CondIni = 0
-				CondIni := longCond ? 1 : shortCond ? -1 : CondIni[1]
-				longCondition = longCond and CondIni[1] == -1
-				shortCondition = shortCond and CondIni[1] == 1
-				*/
-				
-				// only signal on a flip
-				if(longCondition && shortConditionActive)
-				{
-					Log("BUY", LogLevel.Warning);
-					Draw.ArrowUp(this, String.Format("tag-{0}", CurrentBar), true, 0, Low[0] + TickSize, Brushes.Green);
-				}
-				else if(shortCondition && longConditionActive)
-				{
-					Log("SELL", LogLevel.Warning);
-					Draw.ArrowDown(this, String.Format("tag-{0}", CurrentBar), true, 0, High[0] + TickSize, Brushes.Red);
-				}
-				
-				if(longCondition) 
-				{
-					longConditionActive = true;
-					shortConditionActive = false;
-				}
-				else if(shortCondition)
-				{
-					shortConditionActive = true;
-					longConditionActive = false;
-				}
-				
-				PlotBrushes[0][0] = upCounter > 0 ? RangeUpColor : downCounter > 0 ? RangeDownColor : RangeMidColor;
-			
-				Log(String.Format("cargoEma:: currentBar {0} price {1} deltaSmoothRangeEma {2} RangeFilterPre {3} RangeFilterPost {4} up {5} down {6} longActive {7} shortActive {8} long {9} short {10}", 
-				CurrentBar, currentPrice, smoothRangeEMAWithMultiplier, RangeFilter[1], RangeFilter[0], upCounter, downCounter, longConditionActive, shortConditionActive, longCondition, shortCondition), LogLevel.Information);
 			}
+			else 
+			{
+				if(currentPrice + smoothRangeEMAWithMultiplier > RangeFilter[1])
+				{
+					RangeFilter[0] = RangeFilter[1];
+				}
+				else
+				{
+					RangeFilter[0] = currentPrice + smoothRangeEMAWithMultiplier;
+				}
+			}
+			
+			HighTarget[0] = RangeFilter[0] + smoothRangeEMAWithMultiplier;
+			LowTarget[0] = RangeFilter[0] - smoothRangeEMAWithMultiplier;
+				
+			if(RangeFilter[0] > RangeFilter[1]) 
+			{
+				upCounter +=1;
+				downCounter = 0;
+			}
+			else if(RangeFilter[0] < RangeFilter[1])
+			{
+				upCounter = 0;
+				downCounter += 1;
+			}
+			
+			bool longCondition = currentPrice > RangeFilter[0] && upCounter > 0;
+			bool shortCondition = currentPrice < RangeFilter[0] && downCounter > 0;
+				
+			// only signal on a flip
+			if(longCondition && shortConditionActive)
+			{
+				Log("BUY", LogLevel.Warning);
+				Draw.ArrowUp(this, String.Format("tag-{0}", CurrentBar), true, 0, Low[0] + TickSize, Brushes.Green);
+			}
+			else if(shortCondition && longConditionActive)
+			{
+				Log("SELL", LogLevel.Warning);
+				Draw.ArrowDown(this, String.Format("tag-{0}", CurrentBar), true, 0, High[0] + TickSize, Brushes.Red);
+			}
+				
+			if(longCondition) 
+			{
+				longConditionActive = true;
+				shortConditionActive = false;
+			}
+			else if(shortCondition)
+			{
+				shortConditionActive = true;
+				longConditionActive = false;
+			}
+				
+			PlotBrushes[0][0] = upCounter > 0 ? RangeUpColor : downCounter > 0 ? RangeDownColor : RangeMidColor;
+		
+			Log(String.Format("cargoEma:: currentBar {0} price {1} deltaSmoothRangeEma {2} RangeFilterPre {3} RangeFilterPost {4} up {5} down {6} longActive {7} shortActive {8} long {9} short {10}", 
+				CurrentBar, currentPrice, smoothRangeEMAWithMultiplier, RangeFilter[1], RangeFilter[0], upCounter, downCounter, longConditionActive, shortConditionActive, longCondition, shortCondition), LogLevel.Information);
 		}
 
 		#region Properties

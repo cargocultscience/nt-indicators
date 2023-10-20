@@ -59,24 +59,6 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 		protected override void OnBarUpdate()
 		{
-			/*
-			// @function Rational Quadratic Kernel - An infinite sum of Gaussian Kernels of different length scales.
-// @param _src <float series> The source series.
-// @param _lookback <simple int> The number of bars used for the estimation. This is a sliding value that represents the most recent historical bars.
-// @param _relativeWeight <simple float> Relative weighting of time frames. Smaller values resut in a more stretched out curve and larger values will result in a more wiggly curve. As this value approaches zero, the longer time frames will exert more influence on the estimation. As this value approaches infinity, the behavior of the Rational Quadratic Kernel will become identical to the Gaussian kernel.
-// @param _startAtBar <simple int> Bar index on which to start regression. The first bars of a chart are often highly volatile, and omission of these initial bars often leads to a better overall fit.
-// @returns yhat <float series> The estimated values according to the Rational Quadratic Kernel.
-export rationalQuadratic(series float _src, simple int _lookback, simple float _relativeWeight, simple int startAtBar) =>
-			float _currentWeight = 0.
-			float _cumulativeWeight = 0.
-	_size = array.size(array.from(_src)) 1?
-    for i = 0 to _size + startAtBar
-        y = _src[i]
-        w = math.pow(1 + (math.pow(i, 2) / ((math.pow(_lookback, 2) * 2 * _relativeWeight))), -_relativeWeight)
-        _currentWeight += y*w
-        _cumulativeWeight += w
-    yhat = _currentWeight / _cumulativeWeight
-    yhat */
 			if(CurrentBar < KernelStartAtBar)
 			{
 				Value[0] = Input[0];
