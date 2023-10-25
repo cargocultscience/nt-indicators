@@ -44,6 +44,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		private double downCounter = 0;
 		private bool longConditionActive = false;
 		private bool shortConditionActive = false;
+		private String version = "1.0";
 
 		protected override void OnStateChange()
 		{
@@ -58,10 +59,18 @@ namespace NinjaTrader.NinjaScript.Indicators
 				RangeUpColor 				= Brushes.White;
 				RangeMidColor				= Brushes.Aqua;
 				RangeDownColor 				= Brushes.Blue;
-				
-				AddPlot(Brushes.MediumTurquoise, "range filter");
-				AddPlot(Brushes.Wheat, "high target");
-				AddPlot(Brushes.RosyBrown, "low target");
+				EnableBuySellArrows         = true;
+				EnableRangeFilterLine       = true;
+				EnableTargetBandLines       = true;
+				RangeFilterLineWidth        = 3;
+				RangeFilterLineOpacity 		= 75;
+				RangeFilterLineType         = DashStyleHelper.Solid;
+				TargetBandColor 			= Brushes.IndianRed;
+				TargetBandLineWidth  	    = 2;
+				TargetBandLineOpacity 		= 50;
+				TargetBandLineType      	= DashStyleHelper.Dot;
+
+
 			}
 			else if (State == State.Configure)
 			{
@@ -73,6 +82,15 @@ namespace NinjaTrader.NinjaScript.Indicators
 				double weightedPeriod =  Period * 2 - 1; 
 				smoothRangeEMACurrentWeight = 2.0 / (1 + weightedPeriod);
 				smoothRangeEMAPriorWeight = 1 - smoothRangeEMACurrentWeight;
+				
+				AddPlot(new Stroke(EnableRangeFilterLine ? Brushes.MediumTurquoise : Brushes.Transparent, RangeFilterLineType, RangeFilterLineWidth, RangeFilterLineOpacity), 
+					PlotStyle.Line, "range filter");
+				
+				var targetBandStroke = new Stroke(EnableTargetBandLines ? TargetBandColor : Brushes.Transparent, TargetBandLineType, TargetBandLineWidth, TargetBandLineOpacity);
+				AddPlot(targetBandStroke, PlotStyle.Line, "high target");
+				AddPlot(targetBandStroke, PlotStyle.Line, "low target");
+				Log(String.Format("Cargocult Range Filter version {0}", version), LogLevel.Information);
+
 			}
 		}
 
@@ -93,27 +111,17 @@ namespace NinjaTrader.NinjaScript.Indicators
 			smoothRangeEMA = rangeEMA * smoothRangeEMACurrentWeight + smoothRangeEMA * smoothRangeEMAPriorWeight;
 				
 				
-			if(currentPrice > RangeFilter[1])
+			if(currentPrice > RangeFilter[1] && currentPrice - smoothRangeEMAWithMultiplier > RangeFilter[1])
 			{
-				if(currentPrice - smoothRangeEMAWithMultiplier < RangeFilter[1])
-				{
-					RangeFilter[0] = RangeFilter[1]; 
-				}
-				else 
-				{
-					RangeFilter[0] = currentPrice - smoothRangeEMAWithMultiplier;
-				}
+				RangeFilter[0] = currentPrice - smoothRangeEMAWithMultiplier;
+			}
+			else if(currentPrice <= RangeFilter[1] && currentPrice + smoothRangeEMAWithMultiplier < RangeFilter[1])
+			{
+				RangeFilter[0] = currentPrice + smoothRangeEMAWithMultiplier;
 			}
 			else 
 			{
-				if(currentPrice + smoothRangeEMAWithMultiplier > RangeFilter[1])
-				{
-					RangeFilter[0] = RangeFilter[1];
-				}
-				else
-				{
-					RangeFilter[0] = currentPrice + smoothRangeEMAWithMultiplier;
-				}
+				RangeFilter[0] = RangeFilter[1];
 			}
 			
 			HighTarget[0] = RangeFilter[0] + smoothRangeEMAWithMultiplier;
@@ -133,16 +141,16 @@ namespace NinjaTrader.NinjaScript.Indicators
 			bool longCondition = currentPrice > RangeFilter[0] && upCounter > 0;
 			bool shortCondition = currentPrice < RangeFilter[0] && downCounter > 0;
 				
-			// only signal on a flip
-			if(longCondition && shortConditionActive)
-			{
-				Log("BUY", LogLevel.Warning);
-				Draw.ArrowUp(this, String.Format("tag-{0}", CurrentBar), true, 0, Low[0] + TickSize, Brushes.Green);
-			}
-			else if(shortCondition && longConditionActive)
-			{
-				Log("SELL", LogLevel.Warning);
-				Draw.ArrowDown(this, String.Format("tag-{0}", CurrentBar), true, 0, High[0] + TickSize, Brushes.Red);
+			if(EnableBuySellArrows) {
+				// only signal on a flip
+				if(longCondition && shortConditionActive)
+				{
+					Draw.ArrowUp(this, String.Format("tag-{0}", CurrentBar), true, 0, Low[0] + TickSize, Brushes.Green);
+				}
+				else if(shortCondition && longConditionActive)
+				{
+					Draw.ArrowDown(this, String.Format("tag-{0}", CurrentBar), true, 0, High[0] + TickSize, Brushes.Red);
+				}
 			}
 				
 			if(longCondition) 
@@ -156,10 +164,15 @@ namespace NinjaTrader.NinjaScript.Indicators
 				longConditionActive = false;
 			}
 				
-			PlotBrushes[0][0] = upCounter > 0 ? RangeUpColor : downCounter > 0 ? RangeDownColor : RangeMidColor;
+			if(EnableRangeFilterLine) 
+			{
+				PlotBrushes[0][0] = upCounter > 0 ? RangeUpColor : downCounter > 0 ? RangeDownColor : RangeMidColor;
+			}
 		
-			Log(String.Format("cargoEma:: currentBar {0} price {1} deltaSmoothRangeEma {2} RangeFilterPre {3} RangeFilterPost {4} up {5} down {6} longActive {7} shortActive {8} long {9} short {10}", 
+			/*
+			Log(String.Format("RangeFilter:: currentBar {0} price {1} deltaSmoothRangeEma {2} RangeFilterPre {3} RangeFilterPost {4} up {5} down {6} longActive {7} shortActive {8} long {9} short {10}", 
 				CurrentBar, currentPrice, smoothRangeEMAWithMultiplier, RangeFilter[1], RangeFilter[0], upCounter, downCounter, longConditionActive, shortConditionActive, longCondition, shortCondition), LogLevel.Information);
+			*/
 		}
 
 		#region Properties
@@ -194,41 +207,100 @@ namespace NinjaTrader.NinjaScript.Indicators
 			get { return Values[2]; }
 		}
 
-		[XmlIgnore()]
-		[Display(Name = "Range Up", Description = "Color of range line when we are in up condition", Order = 3, GroupName="Range Line Parameters")]
-		public Brush RangeUpColor
+
+		[Display(Name = "Enable Buy Sell Arrows", Description = "Show Range Targets", Order = 1, GroupName="Range Line Parameters")]
+		public bool EnableBuySellArrows
+		{ get; set; }
+
+		[Display(Name = "Enable Range Filter Line", Description = "Show Range Targets", Order = 2, GroupName="Range Line Parameters")]
+		public bool EnableRangeFilterLine
+		{ get; set; }
+
+		[Display(Name = "Enable Target Band Lines", Description = "Show Range Targets", Order = 3, GroupName="Range Line Parameters")]
+		public bool EnableTargetBandLines
 		{ get; set; }
 
 		[XmlIgnore()]
-		[Display(Name = "Range Mid", Description = "Color of range line when we have no up or down condition", Order = 4, GroupName="Range Line Parameters")]
+		[Display(Name = "Range Up", Description = "Color of range line when we are in up condition", Order = 10, GroupName="Range Line Parameters")]
+		public Brush RangeUpColor
+		{ get; set; }
+		
+		[Browsable(false)]
+		public string RangeUpColorSerialize
+		{
+			get { return Serialize.BrushToString(RangeUpColor); }
+	   		set { RangeUpColor = Serialize.StringToBrush(value); }
+		}
+
+		[XmlIgnore()]
+		[Display(Name = "Range Mid", Description = "Color of range line when we have no up or down condition", Order = 11, GroupName="Range Line Parameters")]
 		public Brush RangeMidColor
 		{ get; set; }
 
+		[Browsable(false)]
+		public string RangeMidColorSerialize
+		{
+			get { return Serialize.BrushToString(RangeMidColor); }
+	   		set { RangeMidColor = Serialize.StringToBrush(value); }
+		}
+
 		[XmlIgnore()]
-		[Display(Name = "Range Down", Description = "Color of range line when we have no up or down condition", Order = 5, GroupName="Range Line Parameters")]
+		[Display(Name = "Range Down", Description = "Color of range line when we have no up or down condition", Order = 12, GroupName="Range Line Parameters")]
 		public Brush RangeDownColor
+		{ get; set; }
+
+		[Browsable(false)]
+		public string RangeDownColorSerialize
+		{
+			get { return Serialize.BrushToString(RangeDownColor); }
+	   		set { RangeDownColor = Serialize.StringToBrush(value); }
+		}
+
+
+		[Range(1, int.MaxValue)]
+		[Display(Name="Range Filter Line Width", Description="", Order=20, GroupName="Range Line Parameters")]
+		public int RangeFilterLineWidth
+		{ get; set; }
+
+		[Range(1, 100)]
+		[Display(Name="Range Filter Line Opacity", Description="", Order=21, GroupName="Range Line Parameters")]
+		public int RangeFilterLineOpacity
+		{ get; set; }
+
+		[Display(Name="Range Filter Line Type", Description="", Order=22, GroupName="Range Line Parameters")]
+		public DashStyleHelper RangeFilterLineType
+		{ get; set; }
+
+		[XmlIgnore()]
+		[Display(Name = "Target Band Color", Description = "", Order = 29, GroupName="Range Line Parameters")]
+		public Brush TargetBandColor
+		{ get; set; }
+		
+		[Browsable(false)]
+		public string TargetBandColorSerialize
+		{
+			get { return Serialize.BrushToString(TargetBandColor); }
+	   		set { TargetBandColor = Serialize.StringToBrush(value); }
+		}
+
+		
+		[Range(1, int.MaxValue)]
+		[Display(Name="Target Band Line Width", Description="", Order=30, GroupName="Range Line Parameters")]
+		public int TargetBandLineWidth
+		{ get; set; }
+
+		[Range(1, 100)]
+		[Display(Name="Target Band Line Opacity", Description="", Order=31, GroupName="Range Line Parameters")]
+		public int TargetBandLineOpacity
+		{ get; set; }
+
+		[Display(Name="Target Band Line Type", Description="", Order=32, GroupName="Range Line Parameters")]
+		public DashStyleHelper TargetBandLineType
 		{ get; set; }
 
 		#endregion
 
-		/*
 		
-// Break Outs
-longCond = bool(na)
-shortCond = bool(na)
-longCond := src > filt and src > src[1] and upward > 0 or 
-   src > filt and src < src[1] and upward > 0
-shortCond := src < filt and src < src[1] and downward > 0 or 
-   src < filt and src > src[1] and downward > 0
-		
-		
-		CondIni = 0
-CondIni := longCond ? 1 : shortCond ? -1 : CondIni[1]
-longCondition = longCond and CondIni[1] == -1
-shortCondition = shortCond and CondIni[1] == 1
-*/
-			
-			
 	}
 }
 
