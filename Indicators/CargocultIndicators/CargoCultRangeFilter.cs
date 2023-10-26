@@ -30,16 +30,29 @@ namespace NinjaTrader.NinjaScript.Indicators
 	/// <summary>
 	/// RangeFilter
 	/// </summary>
+	namespace CargoCult
+	{
+		class EMA
+		{
+			double priorWeight;
+			double currentWeight;
+			public double value { get; set; }
+			public EMA(int periods) 
+			{
+				currentWeight = 2.0 / (1 + periods);
+				priorWeight = 1 - currentWeight;
+			}
+			public void update(double v)
+			{
+				value = v * currentWeight + value * priorWeight;
+			}
+		}
+	}
+	
 	public class CargoCultRangeFilter : Indicator
 	{
-		private double rangeEMACurrentWeight;
-		private double rangeEMAPriorWeight;
-		private double rangeEMA;
-		
-		private double smoothRangeEMACurrentWeight;
-		private double smoothRangeEMAPriorWeight;
-		private double smoothRangeEMA;		
-
+		private CargoCult.EMA rangeEMA;
+		private CargoCult.EMA smoothRangeEMA;
 		private double upCounter = 0;
 		private double downCounter = 0;
 		private bool longConditionActive = false;
@@ -74,14 +87,9 @@ namespace NinjaTrader.NinjaScript.Indicators
 			}
 			else if (State == State.Configure)
 			{
-				// TODO create EMA class in AddOns
-				rangeEMACurrentWeight = 2.0 / (1 + Period);
-				rangeEMAPriorWeight = 1 - rangeEMACurrentWeight;
-				
-
-				double weightedPeriod =  Period * 2 - 1; 
-				smoothRangeEMACurrentWeight = 2.0 / (1 + weightedPeriod);
-				smoothRangeEMAPriorWeight = 1 - smoothRangeEMACurrentWeight;
+				rangeEMA = new CargoCult.EMA(Period);
+				int weightedPeriod =  Period * 2 - 1; 
+				smoothRangeEMA = new CargoCult.EMA(weightedPeriod);							
 				
 				AddPlot(new Stroke(EnableRangeFilterLine ? Brushes.MediumTurquoise : Brushes.Transparent, RangeFilterLineType, RangeFilterLineWidth, RangeFilterLineOpacity), 
 					PlotStyle.Line, "range filter");
@@ -105,10 +113,10 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 			double currentPrice = Input[0];
 			double priceChange = Math.Abs(currentPrice - Input[1]);
-			rangeEMA = priceChange * rangeEMACurrentWeight + rangeEMA * rangeEMAPriorWeight;
-				
-			double smoothRangeEMAWithMultiplier = smoothRangeEMA * RangeMultiplier; // confirm we are really supposed to use prior
-			smoothRangeEMA = rangeEMA * smoothRangeEMACurrentWeight + smoothRangeEMA * smoothRangeEMAPriorWeight;
+			rangeEMA.update(priceChange);	
+			
+			double smoothRangeEMAWithMultiplier = smoothRangeEMA.value * RangeMultiplier; // confirm we are really supposed to use prior
+			smoothRangeEMA.update(rangeEMA.value);
 				
 				
 			if(currentPrice > RangeFilter[1] && currentPrice - smoothRangeEMAWithMultiplier > RangeFilter[1])
