@@ -23,7 +23,7 @@
 	using NinjaTrader.Core.FloatingPoint;
 	using NinjaTrader.NinjaScript.DrawingTools;
 	// Manually added:
-	using NinjaTrader.NinjaScript.AddOns;
+	//using NinjaTrader.NinjaScript.AddOns;
 	using System.IO;
 	#endregion
 
