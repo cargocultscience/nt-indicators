@@ -87,7 +87,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		private	Data.SessionIterator	sessionIterator;
 		
 		private DayOfWeek				startWeekFromDay	=	DayOfWeek.Monday;
-		
+		private string version = "1.0.0.0";
 		protected override void OnStateChange()
 		{
 			if (State == State.SetDefaults)
@@ -143,16 +143,39 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				min30Dash			= DashStyleHelper.Dash;
 				min60Dash			= DashStyleHelper.Dash;
 				min240Dash			= DashStyleHelper.Dash;
-				mondayDash		= DashStyleHelper.Dash;
-				minDailyDash		= DashStyleHelper.Dash;
+				mondayDash			= DashStyleHelper.Dash;
+				minDailyDash		= DashStyleHelper.Dash; //previous day
 				currentDailyDash	= DashStyleHelper.Dash;
-				minWeeklyDash		= DashStyleHelper.Dash;
+				minWeeklyDash		= DashStyleHelper.Dash; //previous week
 				currentWeeklyDash	= DashStyleHelper.Dash;
-				minMonthlyDash		= DashStyleHelper.Dash;
+				minMonthlyDash		= DashStyleHelper.Dash; // previous month
 				
 				//Labels
-				mondayLongLabel = "Monday ";
+				min1LongLabel = "1m";
+				min1ShortLabel = "1m";
+				min5LongLabel = "5m";
+				min5ShortLabel = "5m";
+				min15LongLabel = "15m";
+				min15ShortLabel = "15m";
+				min30LongLabel = "30m";
+				min30ShortLabel = "30m";
+				min60LongLabel = "60m";
+				min60ShortLabel = "60m";
+				min240LongLabel = "240m";
+				min240ShortLabel = "240m";
+				mondayLongLabel = "Monday";
 				mondayShortLabel = "Mon";
+				minDailyLongLabel = "Daily";
+				minDailyShortLabel = "d";
+				currentDailyLongLabel = "Daily";
+				currentDailyShortLabel = "d";
+				minWeeklyLongLabel = "Weekly";
+				minWeeklyShortLabel = "w";
+				currentWeeklyLongLabel = "Weekly";
+				currentWeeklyShortLabel = "w";
+				minMonthlyLongLabel = "Monthly";
+				minMonthlyShortLabel = "m";
+				
 				highLongLabel = " High";
 				highShortLabel = "H";
 				lowLongLabel = " Low";
@@ -160,7 +183,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				medianLongLabel = " Mid";
 				medianShortLabel = "M";
 				previousLongLabel = "Prev";
-				previousShortLabel = "P";
+				previousShortLabel = "p";
 				
 				//Line Width
 				min1Width			= 2;
@@ -169,7 +192,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				min30Width			= 2;
 				min60Width			= 2;
 				min240Width			= 2;
-				mondayWidth		= 2;
+				mondayWidth			= 2;
 				minDailyWidth		= 2;
 				currentDailyWidth   = 2;
 				minWeeklyWidth		= 2;
@@ -227,6 +250,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				currentWeekHigh		= double.MinValue;
 				currentWeekLow		= double.MaxValue;
 				lastDate			= Core.Globals.MinDate;
+				Log(string.Format("Cargocults MultiSeries High/Median/Low {0}", version), LogLevel.Information);
 			}
 			
 			else if (State == State.DataLoaded)
@@ -477,8 +501,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (min1ShowLabel)
 				{
-					Draw.Text(this, "1HighText", false, "Previous 1 High: " + my1MinHigh, -5, my1MinHigh, 5, min1Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "1LowText", false, "Previous 1 Low: " + my1MinLow, -5, my1MinLow, 5, min1Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "1HighText", false, BuildLabel(previousLongLabel, previousShortLabel, min1LongLabel, min1ShortLabel, highLongLabel, highShortLabel, my1MinHigh), -5, my1MinHigh, 5, min1Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "1LowText", false, BuildLabel(previousLongLabel, previousShortLabel, min1LongLabel, min1ShortLabel, lowLongLabel, lowShortLabel, my1MinLow), -5, my1MinLow, 5, min1Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 				
 				if (min1ShowMedian)
@@ -487,7 +511,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (min1ShowLabel)
 					{
-						Draw.Text(this, "1MedianText", false, "Previous 1 Median: " + my1MinMedian, -5, my1MinMedian, 5, min1Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "1MedianText", false, BuildLabel(previousLongLabel, previousShortLabel, min1LongLabel, min1ShortLabel, medianLongLabel, medianShortLabel, my1MinMedian), -5, my1MinMedian, 5, min1Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}
 				}
 			}
@@ -503,8 +527,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (min5ShowLabel)
 				{
-					Draw.Text(this, "5HighText", false, "Previous 5 High: " + my5MinHigh, -5, my5MinHigh, 5, min5Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "5LowText", false, "Previous 5 Low: " + my5MinLow, -5, my5MinLow, 5, min5Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "5HighText", false, BuildLabel(previousLongLabel, previousShortLabel, min5LongLabel, min5ShortLabel, highLongLabel, highShortLabel, my5MinHigh), -5, my5MinHigh, 5, min5Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "5LowText", false, BuildLabel(previousLongLabel, previousShortLabel, min5LongLabel, min5ShortLabel, lowLongLabel, lowShortLabel, my5MinLow), -5, my5MinLow, 5, min5Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 				
 				if (min5ShowMedian)
@@ -513,7 +537,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (min5ShowLabel)
 					{
-						Draw.Text(this, "5MedianText", false, "Previous 5 Median: " + my5MinMedian, -5, my5MinMedian, 5, min5Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "5MedianText", false, BuildLabel(previousLongLabel, previousShortLabel, min5LongLabel, min5ShortLabel, medianLongLabel, medianShortLabel, my5MinMedian), -5, my5MinMedian, 5, min5Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}
 				}
 			}
@@ -529,8 +553,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (min15ShowLabel)
 				{
-					Draw.Text(this, "15HighText", false, "Previous 15 High: " + my15MinHigh, -5, my15MinHigh, 5, min15Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "15LowText", false, "Previous 15 Low: " + my15MinLow, -5, my15MinLow, 5, min15Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "15HighText", false, BuildLabel(previousLongLabel, previousShortLabel, min15LongLabel, min15ShortLabel, highLongLabel, highShortLabel, my15MinHigh), -5, my15MinHigh, 5, min15Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "15LowText", false, BuildLabel(previousLongLabel, previousShortLabel, min15LongLabel, min15ShortLabel, lowLongLabel, lowShortLabel, my15MinLow), -5, my15MinLow, 5, min15Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 				
 				if (min15ShowMedian)
@@ -539,7 +563,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (min15ShowLabel)
 					{
-						Draw.Text(this, "15MedianText", false, "Previous 15 Median: " + my15MinMedian, -5, my15MinMedian, 5, min15Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "15MedianText", false, BuildLabel(previousLongLabel, previousShortLabel, min15LongLabel, min15ShortLabel, medianLongLabel, medianShortLabel, my15MinMedian), -5, my15MinMedian, 5, min15Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}
 				}
 			}
@@ -555,8 +579,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (min30ShowLabel)
 				{
-					Draw.Text(this, "30HighText", false, "Previous 30 High: " + my30MinHigh, -5, my30MinHigh, 5, min30Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "30LowText", false, "Previous 30 Low: " + my30MinLow, -5, my30MinLow, 5, min30Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "30HighText", false, BuildLabel(previousLongLabel, previousShortLabel, min30LongLabel, min30ShortLabel, highLongLabel, highShortLabel, my30MinHigh), -5, my30MinHigh, 5, min30Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "30LowText", false, BuildLabel(previousLongLabel, previousShortLabel, min30LongLabel, min30ShortLabel, lowLongLabel, lowShortLabel, my30MinLow), -5, my30MinLow, 5, min30Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 				
 				if (min30ShowMedian)
@@ -565,7 +589,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (min30ShowLabel)
 					{
-						Draw.Text(this, "30MedianText", false, "Previous 30 Median: " + my30MinMedian, -5, my30MinMedian, 5, min30Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "30MedianText", false, BuildLabel(previousLongLabel, previousShortLabel, min30LongLabel, min30ShortLabel, medianLongLabel, medianShortLabel, my30MinMedian), -5, my30MinMedian, 5, min30Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}
 				}
 			}
@@ -581,8 +605,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (min60ShowLabel)
 				{
-					Draw.Text(this, "60HighText", false, "Previous 60 High: " + my60MinHigh, -5, my60MinHigh, 5, min60Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "60LowText", false, "Previous 60 Low: " + my60MinLow, -5, my60MinLow, 5, min60Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "60HighText", false, BuildLabel(previousLongLabel, previousShortLabel, min60LongLabel, min60ShortLabel, highLongLabel, highShortLabel, my60MinHigh), -5, my60MinHigh, 5, min60Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "60LowText", false, BuildLabel(previousLongLabel, previousShortLabel, min60LongLabel, min60ShortLabel, lowLongLabel, lowShortLabel, my60MinLow), -5, my60MinLow, 5, min60Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 				if (min60ShowMedian)
 				{
@@ -590,7 +614,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (min60ShowLabel)
 					{
-						Draw.Text(this, "60MedianText", false, "Previous 60 Median: " + my60MinMedian, -5, my60MinMedian, 5, min60Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "60MedianText", false, BuildLabel(previousLongLabel, previousShortLabel, min60LongLabel, min60ShortLabel, medianLongLabel, medianShortLabel, my60MinMedian), -5, my60MinMedian, 5, min60Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}
 				}
 			}
@@ -606,8 +630,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (min240ShowLabel)
 				{
-					Draw.Text(this, "240HighText", false, "Previous 240 High: " + my240MinHigh, -5, my240MinHigh, 5, min240Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "240LowText", false, "Previous 240 Low: " + my240MinLow, -5, my240MinLow, 5, min240Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "240HighText", false, BuildLabel(previousLongLabel, previousShortLabel, min240LongLabel, min240ShortLabel, highLongLabel, highShortLabel, my240MinHigh), -5, my240MinHigh, 5, min240Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "240LowText", false, BuildLabel(previousLongLabel, previousShortLabel, min240LongLabel, min240ShortLabel, lowLongLabel, lowShortLabel, my240MinLow), -5, my240MinLow, 5, min240Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 				
 				if (min240ShowMedian)
@@ -616,7 +640,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (min240ShowLabel)
 					{
-						Draw.Text(this, "240MedianText", false, "Previous 240 Median: " + my240MinMedian, -5, my240MinMedian, 5, min240Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "240MedianText", false, BuildLabel(previousLongLabel, previousShortLabel, min240LongLabel, min240ShortLabel, medianLongLabel, medianShortLabel, my240MinMedian), -5, my240MinMedian, 5, min240Color, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}
 				}
 			}
@@ -658,8 +682,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (minDailyShowLabel)
 				{
-					Draw.Text(this, "DailyHighText", false, "Previous Daily High: " + myDailyHigh, -5, myDailyHigh, 5, minDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "DailyLowText", false, "Previous Daily Low: " + myDailyLow, -5, myDailyLow, 5, minDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "DailyHighText", false, BuildLabel(previousLongLabel, previousShortLabel, minDailyLongLabel, minDailyShortLabel, highLongLabel, highShortLabel, myDailyHigh), -5, myDailyHigh, 5, minDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "DailyLowText", false, BuildLabel(previousLongLabel, previousShortLabel, minDailyLongLabel, minDailyShortLabel, lowLongLabel, lowShortLabel, myDailyLow), -5, myDailyLow, 5, minDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 	
 				if (minDailyShowMedian)
@@ -668,7 +692,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (minDailyShowLabel)
 					{
-						Draw.Text(this, "DailyMedianText", false, "Previous Daily Median: " + myDailyMedian, -5, myDailyMedian, 5, minDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "DailyMedianText", false, BuildLabel(previousLongLabel, previousShortLabel, minDailyLongLabel, minDailyShortLabel, medianLongLabel, medianShortLabel, myDailyMedian), -5, myDailyMedian, 5, minDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}	
 				}	
 			}
@@ -684,8 +708,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (currentDailyShowLabel)
 				{
-					Draw.Text(this, "CurrentDailyHighText", false, "Current Daily High: " + currentOHLHigh, -5, currentOHLHigh, 5, currentDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "CurrentDailyLowText", false, "Current Daily Low: " + currentOHLLow, -5, currentOHLLow, 5, currentDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "CurrentDailyHighText", false, BuildLabel("", "", currentDailyLongLabel, currentDailyShortLabel, highLongLabel, highShortLabel, currentOHLHigh), -5, currentOHLHigh, 5, currentDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "CurrentDailyLowText", false, BuildLabel("", "", currentDailyLongLabel, currentDailyShortLabel, lowLongLabel, lowShortLabel, currentOHLLow), -5, currentOHLLow, 5, currentDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 				if (currentDailyShowMedian)
 				{
@@ -693,7 +717,7 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (currentDailyShowLabel)
 					{
-						Draw.Text(this, "CurrentDailyMedianText", false, "Current Daily Median: " + currentOHLMedian, -5, currentOHLMedian, 5, currentDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "CurrentDailyMedianText", false, BuildLabel("", "", currentDailyLongLabel, currentDailyShortLabel, medianLongLabel, medianShortLabel, currentOHLMedian), -5, currentOHLMedian, 5, currentDailyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}
 				}
 			}
@@ -709,8 +733,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (minWeeklyShowLabel)
 				{
-					Draw.Text(this, "WeeklyHighText", false, "Previous Weekly High: " + myWeeklyHigh, -5, myWeeklyHigh, 5, minWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "WeeklyLowText", false, "Previous Weekly Low: " + myWeeklyLow, -5, myWeeklyLow, 5, minWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "WeeklyHighText", false, BuildLabel(previousLongLabel, previousShortLabel, minWeeklyLongLabel, minWeeklyShortLabel, highLongLabel, highShortLabel, myWeeklyHigh), -5, myWeeklyHigh, 5, minWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "WeeklyLowText", false, BuildLabel(previousLongLabel, previousShortLabel, minWeeklyLongLabel, minWeeklyShortLabel, lowLongLabel, lowShortLabel, myWeeklyLow), -5, myWeeklyLow, 5, minWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 	
 				if (minWeeklyShowMedian)
@@ -719,11 +743,36 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (minWeeklyShowLabel)
 					{
-						Draw.Text(this, "WeeklyMedianText", false, "Previous Weekly Median: " + myWeeklyMedian, -5, myWeeklyMedian, 5, minWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "WeeklyMedianText", false, BuildLabel(previousLongLabel, previousShortLabel, minWeeklyLongLabel, minWeeklyShortLabel, medianLongLabel, medianShortLabel, myWeeklyMedian), -5, myWeeklyMedian, 5, minWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}	
 				}	
 			}
 		
+			#endregion
+			
+			#region Current Weekly
+			
+			if (currentWeekly)
+			{
+				Draw.Line(this, "CurrentWeeklyHigh", false, (barsCurrent - barsAtLineWeekly), currentWeekHigh, -1, currentWeekHigh, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth);
+				Draw.Line(this, "CurrentWeeklyLow", false, (barsCurrent - barsAtLineWeekly), currentWeekLow, -1, currentWeekLow, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth);
+				
+				if (currentWeeklyShowLabel)
+				{
+					Draw.Text(this, "CurrentWeeklyHighText", false, BuildLabel("", "", currentWeeklyLongLabel, currentWeeklyShortLabel, highLongLabel, highShortLabel, currentWeekHigh), -5, currentWeekHigh, 5, currentWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "CurrentWeeklyLowText", false, BuildLabel("", "", currentWeeklyLongLabel, currentWeeklyShortLabel, lowLongLabel, lowShortLabel, currentWeekLow), -5, currentWeekLow, 5, currentWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+				}
+				if (currentWeeklyShowMedian)
+				{
+					Draw.Line(this, "CurrentWeeklyMedian", false, (barsCurrent - barsAtLineWeekly), currentWeekMedian, -1, currentWeekMedian, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth);
+					
+					if (currentWeeklyShowLabel)
+					{
+						Draw.Text(this, "CurrentWeeklyMedianText", false, BuildLabel("", "", currentWeeklyLongLabel, currentWeeklyShortLabel, medianLongLabel, medianShortLabel, currentWeekMedian), -5, currentWeekMedian, 5, currentWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					}
+				}
+			}
+			
 			#endregion
 			
 			#region Previous Monthly
@@ -735,8 +784,8 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 				
 				if (minMonthlyShowLabel)
 				{
-					Draw.Text(this, "MonthlyHighText", false, "Previous Monthly High: " + myMonthlyHigh, -5, myMonthlyHigh, 5, minMonthlyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "MonthlyLowText", false, "Previous Monthly Low: " + myMonthlyLow, -5, myMonthlyLow, 5, minMonthlyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "MonthlyHighText", false, BuildLabel(previousLongLabel, previousShortLabel, minMonthlyLongLabel, minMonthlyShortLabel, highLongLabel, highShortLabel, myMonthlyHigh), -5, myMonthlyHigh, 5, minMonthlyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+					Draw.Text(this, "MonthlyLowText", false, BuildLabel(previousLongLabel, previousShortLabel, minMonthlyLongLabel, minMonthlyShortLabel, lowLongLabel, lowShortLabel, myMonthlyLow), -5, myMonthlyLow, 5, minMonthlyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 				}
 	
 				if (minMonthlyShowMedian)
@@ -745,42 +794,13 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 					
 					if (minMonthlyShowLabel)
 					{
-						Draw.Text(this, "MonthlyMedianText", false, "Previous Monthly Median: " + myMonthlyMedian, -5, myMonthlyMedian, 5, minMonthlyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
+						Draw.Text(this, "MonthlyMedianText", false, BuildLabel(previousLongLabel, previousShortLabel, minMonthlyLongLabel, minMonthlyShortLabel, medianLongLabel, medianShortLabel, myMonthlyMedian), -5, myMonthlyMedian, 5, minMonthlyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
 					}	
 				}	
 			}
 			
 			#endregion
 
-
-			
-			
-			
-			#region Current Weekly
-			
-			if (currentWeekly)
-			{
-				Draw.Line(this, "CurrentWeeklyHigh", false, (barsCurrent - barsAtLineWeekly), currentWeekHigh, -1, currentWeekHigh, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth);
-				Draw.Line(this, "CurrentWeeklyLow", false, (barsCurrent - barsAtLineWeekly), currentWeekLow, -1, currentWeekLow, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth);
-				
-				if (currentWeeklyShowLabel)
-				{
-					Draw.Text(this, "CurrentWeeklyHighText", false, "Current Weekly High: " + currentWeekHigh, -5, currentWeekHigh, 5, currentWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					Draw.Text(this, "CurrentWeeklyLowText", false, "Current Weekly Low: " + currentWeekLow, -5, currentWeekLow, 5, currentWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-				}
-				if (currentWeeklyShowMedian)
-				{
-					Draw.Line(this, "CurrentWeeklyMedian", false, (barsCurrent - barsAtLineWeekly), currentWeekMedian, -1, currentWeekMedian, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth);
-					
-					if (currentWeeklyShowLabel)
-					{
-						Draw.Text(this, "CurrentWeeklyMedianText", false, "Current Weekly Median: " + currentWeekMedian, -5, currentWeekMedian, 5, currentWeeklyColor, myFont, TextAlignment.Left, Brushes.Transparent, null, 1);
-					}
-				}
-			}
-			
-			#endregion
-			
 			#endregion
 			
 		}
@@ -919,7 +939,6 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		{ get; set; }
 		
 		#endregion 02. use long or short labels
-
 		
 		#region 03. 1min Level Customize
 		
@@ -954,6 +973,16 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		[NinjaScriptProperty]
 		[Display(Name="Show 1 Min Labels", Order=5, GroupName="03. Customize 1 Min Lines")]
 		public bool min1ShowLabel
+		{ get; set; }
+		
+		[NinjaScriptProperty]
+		[Display(Name="1 Min Long Label", Order=10, GroupName="03. Customize 1 Min Lines")]
+		public string min1LongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="1 Min Short Label", Order=11, GroupName="03. Customize 1 Min Lines")]
+		public string min1ShortLabel
 		{ get; set; }
 		
 		#endregion
@@ -993,7 +1022,17 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		public bool min5ShowLabel
 		{ get; set; }
 		
-			#endregion
+		[NinjaScriptProperty]
+		[Display(Name="5 Min Long Label", Order=10, GroupName="04. Customize 5 Min Lines")]
+		public string min5LongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="5 Min Short Label", Order=11, GroupName="04. Customize 5 Min Lines")]
+		public string min5ShortLabel
+		{ get; set; }
+
+		#endregion
 		
 		#region 05. 15min Level Customize
 		
@@ -1028,6 +1067,16 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		[NinjaScriptProperty]
 		[Display(Name="Show 15 Min Labels", Order=5, GroupName="05. Customize 15 Min Lines")]
 		public bool min15ShowLabel
+		{ get; set; }
+		
+		[NinjaScriptProperty]
+		[Display(Name="15 Min Long Label", Order=10, GroupName="05. Customize 15 Min Lines")]
+		public string min15LongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="15 Min Short Label", Order=11, GroupName="05. Customize 15 Min Lines")]
+		public string min15ShortLabel
 		{ get; set; }
 		
 		#endregion
@@ -1065,6 +1114,16 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		[NinjaScriptProperty]
 		[Display(Name="Show 30 Min Labels", Order=5, GroupName="06. Customize 30 Min Lines")]
 		public bool min30ShowLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="30 Min Long Label", Order=10, GroupName="06. Customize 30 Min Lines")]
+		public string min30LongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="30 Min Short Label", Order=11, GroupName="06. Customize 30 Min Lines")]
+		public string min30ShortLabel
 		{ get; set; }
 		
 		#endregion
@@ -1104,6 +1163,15 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		public bool min60ShowLabel
 		{ get; set; }
 		
+		[NinjaScriptProperty]
+		[Display(Name="60 Min Long Label", Order=10, GroupName="07. Customize 60 Min Lines")]
+		public string min60LongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="60 Min Short Label", Order=11, GroupName="07. Customize 60 Min Lines")]
+		public string min60ShortLabel
+		{ get; set; }
 		#endregion
 		
 		#region 08. 240min Level Customize
@@ -1141,6 +1209,16 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		public bool min240ShowLabel
 		{ get; set; }
 		
+		[NinjaScriptProperty]
+		[Display(Name="240 Min Long Label", Order=10, GroupName="08. Customize 240 Min Lines")]
+		public string min240LongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="240 Min Short Label", Order=11, GroupName="08. Customize 240 Min Lines")]
+		public string min240ShortLabel
+		{ get; set; }
+
 		#endregion
 
 		#region 09. Monday Level Customize
@@ -1169,12 +1247,12 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		{ get; set; }
 		
 		[NinjaScriptProperty]
-		[Display(Name="Show Monday Min Median Levels", Order=4, GroupName="09. Customize Monday Lines")]
+		[Display(Name="Show Monday Median Levels", Order=4, GroupName="09. Customize Monday Lines")]
 		public bool mondayShowMedian
 		{ get; set; }
 		
 		[NinjaScriptProperty]
-		[Display(Name="Show Monday Min Labels", Order=5, GroupName="09. Customize Monday Lines")]
+		[Display(Name="Show Monday Labels", Order=5, GroupName="09. Customize Monday Lines")]
 		public bool mondayShowLabel
 		{ get; set; }
 
@@ -1184,15 +1262,12 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		{ get; set; }
 
 		[NinjaScriptProperty]
-		[Display(Name="Monday Short Label", Order=10, GroupName="09. Customize Monday Lines")]
+		[Display(Name="Monday Short Label", Order=11, GroupName="09. Customize Monday Lines")]
 		public string mondayShortLabel
 		{ get; set; }
 
 		#endregion
 
-		
-		
-		
 		#region 10. Previous Daily Level Customize
 		
 		[NinjaScriptProperty]
@@ -1227,6 +1302,17 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		[Display(Name="Show Previous Daily Labels", Order=5, GroupName="10. Customize Previous Daily Lines")]
 		public bool minDailyShowLabel
 		{ get; set; }
+		
+		[NinjaScriptProperty]
+		[Display(Name="Previous Daily Long Label", Order=10, GroupName="10. Customize Previous Daily Lines")]
+		public string minDailyLongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="Previous Daily Short Label", Order=11, GroupName="10. Customize Previous Daily Lines")]
+		public string minDailyShortLabel
+		{ get; set; }
+
 
 		#endregion
 		
@@ -1265,6 +1351,16 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		public bool currentDailyShowLabel
 		{ get; set; }
 
+		[NinjaScriptProperty]
+		[Display(Name="Current Daily Long Label", Order=10, GroupName="11. Customize Current Daily Lines")]
+		public string currentDailyLongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="Current Daily Short Label", Order=11, GroupName="11. Customize Current Daily Lines")]
+		public string currentDailyShortLabel
+		{ get; set; }
+
 		#endregion
 		
 		#region 12. Previous Weekly Level Customize
@@ -1300,6 +1396,16 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		[NinjaScriptProperty]
 		[Display(Name="Show Previous Weekly Labels", Order=5, GroupName="12. Customize Previous Weekly Lines")]
 		public bool minWeeklyShowLabel
+		{ get; set; }
+		
+		[NinjaScriptProperty]
+		[Display(Name="Previous Weekly Long Label", Order=10, GroupName="12. Customize Previous Weekly Lines")]
+		public string minWeeklyLongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="Previous Weekly Short Label", Order=11, GroupName="12. Customize Previous Weekly Lines")]
+		public string minWeeklyShortLabel
 		{ get; set; }
 
 		#endregion
@@ -1347,6 +1453,16 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 			set { startWeekFromDay = value; }
 		}
 		
+		[NinjaScriptProperty]
+		[Display(Name="Previous Weekly Long Label", Order=10, GroupName="13. Customize Current Weekly Lines")]
+		public string currentWeeklyLongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="Previous Weekly Short Label", Order=11, GroupName="13. Customize Current Weekly Lines")]
+		public string currentWeeklyShortLabel
+		{ get; set; }
+		
 		#endregion
 		
 		#region 14. Previous Monthly Level Customize
@@ -1383,6 +1499,16 @@ namespace NinjaTrader.NinjaScript.Indicators.Cargocult
 		[Display(Name="Show Previous Monthly Labels", Order=5, GroupName="14. Customize Previous Monthly Lines")]
 		public bool minMonthlyShowLabel
 		{ get; set; }
+		
+		[NinjaScriptProperty]
+		[Display(Name="Previous Monthly Long Label", Order=10, GroupName="14. Customize Previous Monthly Lines")]
+		public string minMonthlyLongLabel
+		{ get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name="Previous Monthly Short Label", Order=11, GroupName="14. Customize Previous Monthly Lines")]
+		public string minMonthlyShortLabel
+		{ get; set; }
 
 		#endregion
 		
@@ -1398,18 +1524,18 @@ namespace NinjaTrader.NinjaScript.Indicators
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
 		private Cargocult.MultiSeriesHL[] cacheMultiSeriesHL;
-		public Cargocult.MultiSeriesHL MultiSeriesHL(bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel)
+		public Cargocult.MultiSeriesHL MultiSeriesHL(bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, string min1LongLabel, string min1ShortLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, string min5LongLabel, string min5ShortLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, string min15LongLabel, string min15ShortLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, string min30LongLabel, string min30ShortLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, string min60LongLabel, string min60ShortLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, string min240LongLabel, string min240ShortLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, string minDailyLongLabel, string minDailyShortLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, string currentDailyLongLabel, string currentDailyShortLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, string minWeeklyLongLabel, string minWeeklyShortLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, string currentWeeklyLongLabel, string currentWeeklyShortLabel, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel, string minMonthlyLongLabel, string minMonthlyShortLabel)
 		{
-			return MultiSeriesHL(Input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel);
+			return MultiSeriesHL(Input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min1LongLabel, min1ShortLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min5LongLabel, min5ShortLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min15LongLabel, min15ShortLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min30LongLabel, min30ShortLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min60LongLabel, min60ShortLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, min240LongLabel, min240ShortLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, minDailyLongLabel, minDailyShortLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, currentDailyLongLabel, currentDailyShortLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, minWeeklyLongLabel, minWeeklyShortLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, currentWeeklyLongLabel, currentWeeklyShortLabel, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel, minMonthlyLongLabel, minMonthlyShortLabel);
 		}
 
-		public Cargocult.MultiSeriesHL MultiSeriesHL(ISeries<double> input, bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel)
+		public Cargocult.MultiSeriesHL MultiSeriesHL(ISeries<double> input, bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, string min1LongLabel, string min1ShortLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, string min5LongLabel, string min5ShortLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, string min15LongLabel, string min15ShortLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, string min30LongLabel, string min30ShortLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, string min60LongLabel, string min60ShortLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, string min240LongLabel, string min240ShortLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, string minDailyLongLabel, string minDailyShortLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, string currentDailyLongLabel, string currentDailyShortLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, string minWeeklyLongLabel, string minWeeklyShortLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, string currentWeeklyLongLabel, string currentWeeklyShortLabel, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel, string minMonthlyLongLabel, string minMonthlyShortLabel)
 		{
 			if (cacheMultiSeriesHL != null)
 				for (int idx = 0; idx < cacheMultiSeriesHL.Length; idx++)
-					if (cacheMultiSeriesHL[idx] != null && cacheMultiSeriesHL[idx].min1 == min1 && cacheMultiSeriesHL[idx].min5 == min5 && cacheMultiSeriesHL[idx].min15 == min15 && cacheMultiSeriesHL[idx].min30 == min30 && cacheMultiSeriesHL[idx].min60 == min60 && cacheMultiSeriesHL[idx].min240 == min240 && cacheMultiSeriesHL[idx].monday == monday && cacheMultiSeriesHL[idx].minDaily == minDaily && cacheMultiSeriesHL[idx].currentDaily == currentDaily && cacheMultiSeriesHL[idx].minWeekly == minWeekly && cacheMultiSeriesHL[idx].currentWeekly == currentWeekly && cacheMultiSeriesHL[idx].minMonthly == minMonthly && cacheMultiSeriesHL[idx].highLongLabel == highLongLabel && cacheMultiSeriesHL[idx].highShortLabel == highShortLabel && cacheMultiSeriesHL[idx].lowLongLabel == lowLongLabel && cacheMultiSeriesHL[idx].lowShortLabel == lowShortLabel && cacheMultiSeriesHL[idx].medianLongLabel == medianLongLabel && cacheMultiSeriesHL[idx].medianShortLabel == medianShortLabel && cacheMultiSeriesHL[idx].previousLongLabel == previousLongLabel && cacheMultiSeriesHL[idx].previousShortLabel == previousShortLabel && cacheMultiSeriesHL[idx].useShortLabels == useShortLabels && cacheMultiSeriesHL[idx].showLabelPrices == showLabelPrices && cacheMultiSeriesHL[idx].min1Color == min1Color && cacheMultiSeriesHL[idx].min1Dash == min1Dash && cacheMultiSeriesHL[idx].min1Width == min1Width && cacheMultiSeriesHL[idx].min1ShowMedian == min1ShowMedian && cacheMultiSeriesHL[idx].min1ShowLabel == min1ShowLabel && cacheMultiSeriesHL[idx].min5Color == min5Color && cacheMultiSeriesHL[idx].min5Dash == min5Dash && cacheMultiSeriesHL[idx].min5Width == min5Width && cacheMultiSeriesHL[idx].min5ShowMedian == min5ShowMedian && cacheMultiSeriesHL[idx].min5ShowLabel == min5ShowLabel && cacheMultiSeriesHL[idx].min15Color == min15Color && cacheMultiSeriesHL[idx].min15Dash == min15Dash && cacheMultiSeriesHL[idx].min15Width == min15Width && cacheMultiSeriesHL[idx].min15ShowMedian == min15ShowMedian && cacheMultiSeriesHL[idx].min15ShowLabel == min15ShowLabel && cacheMultiSeriesHL[idx].min30Color == min30Color && cacheMultiSeriesHL[idx].min30Dash == min30Dash && cacheMultiSeriesHL[idx].min30Width == min30Width && cacheMultiSeriesHL[idx].min30ShowMedian == min30ShowMedian && cacheMultiSeriesHL[idx].min30ShowLabel == min30ShowLabel && cacheMultiSeriesHL[idx].min60Color == min60Color && cacheMultiSeriesHL[idx].min60Dash == min60Dash && cacheMultiSeriesHL[idx].min60Width == min60Width && cacheMultiSeriesHL[idx].min60ShowMedian == min60ShowMedian && cacheMultiSeriesHL[idx].min60ShowLabel == min60ShowLabel && cacheMultiSeriesHL[idx].min240Color == min240Color && cacheMultiSeriesHL[idx].min240Dash == min240Dash && cacheMultiSeriesHL[idx].min240Width == min240Width && cacheMultiSeriesHL[idx].min240ShowMedian == min240ShowMedian && cacheMultiSeriesHL[idx].min240ShowLabel == min240ShowLabel && cacheMultiSeriesHL[idx].mondayColor == mondayColor && cacheMultiSeriesHL[idx].mondayDash == mondayDash && cacheMultiSeriesHL[idx].mondayWidth == mondayWidth && cacheMultiSeriesHL[idx].mondayShowMedian == mondayShowMedian && cacheMultiSeriesHL[idx].mondayShowLabel == mondayShowLabel && cacheMultiSeriesHL[idx].mondayLongLabel == mondayLongLabel && cacheMultiSeriesHL[idx].mondayShortLabel == mondayShortLabel && cacheMultiSeriesHL[idx].minDailyColor == minDailyColor && cacheMultiSeriesHL[idx].minDailyDash == minDailyDash && cacheMultiSeriesHL[idx].minDailyWidth == minDailyWidth && cacheMultiSeriesHL[idx].minDailyShowMedian == minDailyShowMedian && cacheMultiSeriesHL[idx].minDailyShowLabel == minDailyShowLabel && cacheMultiSeriesHL[idx].currentDailyColor == currentDailyColor && cacheMultiSeriesHL[idx].currentDailyDash == currentDailyDash && cacheMultiSeriesHL[idx].currentDailyWidth == currentDailyWidth && cacheMultiSeriesHL[idx].currentDailyShowMedian == currentDailyShowMedian && cacheMultiSeriesHL[idx].currentDailyShowLabel == currentDailyShowLabel && cacheMultiSeriesHL[idx].minWeeklyColor == minWeeklyColor && cacheMultiSeriesHL[idx].minWeeklyDash == minWeeklyDash && cacheMultiSeriesHL[idx].minWeeklyWidth == minWeeklyWidth && cacheMultiSeriesHL[idx].minWeeklyShowMedian == minWeeklyShowMedian && cacheMultiSeriesHL[idx].minWeeklyShowLabel == minWeeklyShowLabel && cacheMultiSeriesHL[idx].currentWeeklyColor == currentWeeklyColor && cacheMultiSeriesHL[idx].currentWeeklyDash == currentWeeklyDash && cacheMultiSeriesHL[idx].currentWeeklyWidth == currentWeeklyWidth && cacheMultiSeriesHL[idx].currentWeeklyShowMedian == currentWeeklyShowMedian && cacheMultiSeriesHL[idx].currentWeeklyShowLabel == currentWeeklyShowLabel && cacheMultiSeriesHL[idx].StartWeekFromDay == startWeekFromDay && cacheMultiSeriesHL[idx].minMonthlyColor == minMonthlyColor && cacheMultiSeriesHL[idx].minMonthlyDash == minMonthlyDash && cacheMultiSeriesHL[idx].minMonthlyWidth == minMonthlyWidth && cacheMultiSeriesHL[idx].minMonthlyShowMedian == minMonthlyShowMedian && cacheMultiSeriesHL[idx].minMonthlyShowLabel == minMonthlyShowLabel && cacheMultiSeriesHL[idx].EqualsInput(input))
+					if (cacheMultiSeriesHL[idx] != null && cacheMultiSeriesHL[idx].min1 == min1 && cacheMultiSeriesHL[idx].min5 == min5 && cacheMultiSeriesHL[idx].min15 == min15 && cacheMultiSeriesHL[idx].min30 == min30 && cacheMultiSeriesHL[idx].min60 == min60 && cacheMultiSeriesHL[idx].min240 == min240 && cacheMultiSeriesHL[idx].monday == monday && cacheMultiSeriesHL[idx].minDaily == minDaily && cacheMultiSeriesHL[idx].currentDaily == currentDaily && cacheMultiSeriesHL[idx].minWeekly == minWeekly && cacheMultiSeriesHL[idx].currentWeekly == currentWeekly && cacheMultiSeriesHL[idx].minMonthly == minMonthly && cacheMultiSeriesHL[idx].highLongLabel == highLongLabel && cacheMultiSeriesHL[idx].highShortLabel == highShortLabel && cacheMultiSeriesHL[idx].lowLongLabel == lowLongLabel && cacheMultiSeriesHL[idx].lowShortLabel == lowShortLabel && cacheMultiSeriesHL[idx].medianLongLabel == medianLongLabel && cacheMultiSeriesHL[idx].medianShortLabel == medianShortLabel && cacheMultiSeriesHL[idx].previousLongLabel == previousLongLabel && cacheMultiSeriesHL[idx].previousShortLabel == previousShortLabel && cacheMultiSeriesHL[idx].useShortLabels == useShortLabels && cacheMultiSeriesHL[idx].showLabelPrices == showLabelPrices && cacheMultiSeriesHL[idx].min1Color == min1Color && cacheMultiSeriesHL[idx].min1Dash == min1Dash && cacheMultiSeriesHL[idx].min1Width == min1Width && cacheMultiSeriesHL[idx].min1ShowMedian == min1ShowMedian && cacheMultiSeriesHL[idx].min1ShowLabel == min1ShowLabel && cacheMultiSeriesHL[idx].min1LongLabel == min1LongLabel && cacheMultiSeriesHL[idx].min1ShortLabel == min1ShortLabel && cacheMultiSeriesHL[idx].min5Color == min5Color && cacheMultiSeriesHL[idx].min5Dash == min5Dash && cacheMultiSeriesHL[idx].min5Width == min5Width && cacheMultiSeriesHL[idx].min5ShowMedian == min5ShowMedian && cacheMultiSeriesHL[idx].min5ShowLabel == min5ShowLabel && cacheMultiSeriesHL[idx].min5LongLabel == min5LongLabel && cacheMultiSeriesHL[idx].min5ShortLabel == min5ShortLabel && cacheMultiSeriesHL[idx].min15Color == min15Color && cacheMultiSeriesHL[idx].min15Dash == min15Dash && cacheMultiSeriesHL[idx].min15Width == min15Width && cacheMultiSeriesHL[idx].min15ShowMedian == min15ShowMedian && cacheMultiSeriesHL[idx].min15ShowLabel == min15ShowLabel && cacheMultiSeriesHL[idx].min15LongLabel == min15LongLabel && cacheMultiSeriesHL[idx].min15ShortLabel == min15ShortLabel && cacheMultiSeriesHL[idx].min30Color == min30Color && cacheMultiSeriesHL[idx].min30Dash == min30Dash && cacheMultiSeriesHL[idx].min30Width == min30Width && cacheMultiSeriesHL[idx].min30ShowMedian == min30ShowMedian && cacheMultiSeriesHL[idx].min30ShowLabel == min30ShowLabel && cacheMultiSeriesHL[idx].min30LongLabel == min30LongLabel && cacheMultiSeriesHL[idx].min30ShortLabel == min30ShortLabel && cacheMultiSeriesHL[idx].min60Color == min60Color && cacheMultiSeriesHL[idx].min60Dash == min60Dash && cacheMultiSeriesHL[idx].min60Width == min60Width && cacheMultiSeriesHL[idx].min60ShowMedian == min60ShowMedian && cacheMultiSeriesHL[idx].min60ShowLabel == min60ShowLabel && cacheMultiSeriesHL[idx].min60LongLabel == min60LongLabel && cacheMultiSeriesHL[idx].min60ShortLabel == min60ShortLabel && cacheMultiSeriesHL[idx].min240Color == min240Color && cacheMultiSeriesHL[idx].min240Dash == min240Dash && cacheMultiSeriesHL[idx].min240Width == min240Width && cacheMultiSeriesHL[idx].min240ShowMedian == min240ShowMedian && cacheMultiSeriesHL[idx].min240ShowLabel == min240ShowLabel && cacheMultiSeriesHL[idx].min240LongLabel == min240LongLabel && cacheMultiSeriesHL[idx].min240ShortLabel == min240ShortLabel && cacheMultiSeriesHL[idx].mondayColor == mondayColor && cacheMultiSeriesHL[idx].mondayDash == mondayDash && cacheMultiSeriesHL[idx].mondayWidth == mondayWidth && cacheMultiSeriesHL[idx].mondayShowMedian == mondayShowMedian && cacheMultiSeriesHL[idx].mondayShowLabel == mondayShowLabel && cacheMultiSeriesHL[idx].mondayLongLabel == mondayLongLabel && cacheMultiSeriesHL[idx].mondayShortLabel == mondayShortLabel && cacheMultiSeriesHL[idx].minDailyColor == minDailyColor && cacheMultiSeriesHL[idx].minDailyDash == minDailyDash && cacheMultiSeriesHL[idx].minDailyWidth == minDailyWidth && cacheMultiSeriesHL[idx].minDailyShowMedian == minDailyShowMedian && cacheMultiSeriesHL[idx].minDailyShowLabel == minDailyShowLabel && cacheMultiSeriesHL[idx].minDailyLongLabel == minDailyLongLabel && cacheMultiSeriesHL[idx].minDailyShortLabel == minDailyShortLabel && cacheMultiSeriesHL[idx].currentDailyColor == currentDailyColor && cacheMultiSeriesHL[idx].currentDailyDash == currentDailyDash && cacheMultiSeriesHL[idx].currentDailyWidth == currentDailyWidth && cacheMultiSeriesHL[idx].currentDailyShowMedian == currentDailyShowMedian && cacheMultiSeriesHL[idx].currentDailyShowLabel == currentDailyShowLabel && cacheMultiSeriesHL[idx].currentDailyLongLabel == currentDailyLongLabel && cacheMultiSeriesHL[idx].currentDailyShortLabel == currentDailyShortLabel && cacheMultiSeriesHL[idx].minWeeklyColor == minWeeklyColor && cacheMultiSeriesHL[idx].minWeeklyDash == minWeeklyDash && cacheMultiSeriesHL[idx].minWeeklyWidth == minWeeklyWidth && cacheMultiSeriesHL[idx].minWeeklyShowMedian == minWeeklyShowMedian && cacheMultiSeriesHL[idx].minWeeklyShowLabel == minWeeklyShowLabel && cacheMultiSeriesHL[idx].minWeeklyLongLabel == minWeeklyLongLabel && cacheMultiSeriesHL[idx].minWeeklyShortLabel == minWeeklyShortLabel && cacheMultiSeriesHL[idx].currentWeeklyColor == currentWeeklyColor && cacheMultiSeriesHL[idx].currentWeeklyDash == currentWeeklyDash && cacheMultiSeriesHL[idx].currentWeeklyWidth == currentWeeklyWidth && cacheMultiSeriesHL[idx].currentWeeklyShowMedian == currentWeeklyShowMedian && cacheMultiSeriesHL[idx].currentWeeklyShowLabel == currentWeeklyShowLabel && cacheMultiSeriesHL[idx].StartWeekFromDay == startWeekFromDay && cacheMultiSeriesHL[idx].currentWeeklyLongLabel == currentWeeklyLongLabel && cacheMultiSeriesHL[idx].currentWeeklyShortLabel == currentWeeklyShortLabel && cacheMultiSeriesHL[idx].minMonthlyColor == minMonthlyColor && cacheMultiSeriesHL[idx].minMonthlyDash == minMonthlyDash && cacheMultiSeriesHL[idx].minMonthlyWidth == minMonthlyWidth && cacheMultiSeriesHL[idx].minMonthlyShowMedian == minMonthlyShowMedian && cacheMultiSeriesHL[idx].minMonthlyShowLabel == minMonthlyShowLabel && cacheMultiSeriesHL[idx].minMonthlyLongLabel == minMonthlyLongLabel && cacheMultiSeriesHL[idx].minMonthlyShortLabel == minMonthlyShortLabel && cacheMultiSeriesHL[idx].EqualsInput(input))
 						return cacheMultiSeriesHL[idx];
-			return CacheIndicator<Cargocult.MultiSeriesHL>(new Cargocult.MultiSeriesHL(){ min1 = min1, min5 = min5, min15 = min15, min30 = min30, min60 = min60, min240 = min240, monday = monday, minDaily = minDaily, currentDaily = currentDaily, minWeekly = minWeekly, currentWeekly = currentWeekly, minMonthly = minMonthly, highLongLabel = highLongLabel, highShortLabel = highShortLabel, lowLongLabel = lowLongLabel, lowShortLabel = lowShortLabel, medianLongLabel = medianLongLabel, medianShortLabel = medianShortLabel, previousLongLabel = previousLongLabel, previousShortLabel = previousShortLabel, useShortLabels = useShortLabels, showLabelPrices = showLabelPrices, min1Color = min1Color, min1Dash = min1Dash, min1Width = min1Width, min1ShowMedian = min1ShowMedian, min1ShowLabel = min1ShowLabel, min5Color = min5Color, min5Dash = min5Dash, min5Width = min5Width, min5ShowMedian = min5ShowMedian, min5ShowLabel = min5ShowLabel, min15Color = min15Color, min15Dash = min15Dash, min15Width = min15Width, min15ShowMedian = min15ShowMedian, min15ShowLabel = min15ShowLabel, min30Color = min30Color, min30Dash = min30Dash, min30Width = min30Width, min30ShowMedian = min30ShowMedian, min30ShowLabel = min30ShowLabel, min60Color = min60Color, min60Dash = min60Dash, min60Width = min60Width, min60ShowMedian = min60ShowMedian, min60ShowLabel = min60ShowLabel, min240Color = min240Color, min240Dash = min240Dash, min240Width = min240Width, min240ShowMedian = min240ShowMedian, min240ShowLabel = min240ShowLabel, mondayColor = mondayColor, mondayDash = mondayDash, mondayWidth = mondayWidth, mondayShowMedian = mondayShowMedian, mondayShowLabel = mondayShowLabel, mondayLongLabel = mondayLongLabel, mondayShortLabel = mondayShortLabel, minDailyColor = minDailyColor, minDailyDash = minDailyDash, minDailyWidth = minDailyWidth, minDailyShowMedian = minDailyShowMedian, minDailyShowLabel = minDailyShowLabel, currentDailyColor = currentDailyColor, currentDailyDash = currentDailyDash, currentDailyWidth = currentDailyWidth, currentDailyShowMedian = currentDailyShowMedian, currentDailyShowLabel = currentDailyShowLabel, minWeeklyColor = minWeeklyColor, minWeeklyDash = minWeeklyDash, minWeeklyWidth = minWeeklyWidth, minWeeklyShowMedian = minWeeklyShowMedian, minWeeklyShowLabel = minWeeklyShowLabel, currentWeeklyColor = currentWeeklyColor, currentWeeklyDash = currentWeeklyDash, currentWeeklyWidth = currentWeeklyWidth, currentWeeklyShowMedian = currentWeeklyShowMedian, currentWeeklyShowLabel = currentWeeklyShowLabel, StartWeekFromDay = startWeekFromDay, minMonthlyColor = minMonthlyColor, minMonthlyDash = minMonthlyDash, minMonthlyWidth = minMonthlyWidth, minMonthlyShowMedian = minMonthlyShowMedian, minMonthlyShowLabel = minMonthlyShowLabel }, input, ref cacheMultiSeriesHL);
+			return CacheIndicator<Cargocult.MultiSeriesHL>(new Cargocult.MultiSeriesHL(){ min1 = min1, min5 = min5, min15 = min15, min30 = min30, min60 = min60, min240 = min240, monday = monday, minDaily = minDaily, currentDaily = currentDaily, minWeekly = minWeekly, currentWeekly = currentWeekly, minMonthly = minMonthly, highLongLabel = highLongLabel, highShortLabel = highShortLabel, lowLongLabel = lowLongLabel, lowShortLabel = lowShortLabel, medianLongLabel = medianLongLabel, medianShortLabel = medianShortLabel, previousLongLabel = previousLongLabel, previousShortLabel = previousShortLabel, useShortLabels = useShortLabels, showLabelPrices = showLabelPrices, min1Color = min1Color, min1Dash = min1Dash, min1Width = min1Width, min1ShowMedian = min1ShowMedian, min1ShowLabel = min1ShowLabel, min1LongLabel = min1LongLabel, min1ShortLabel = min1ShortLabel, min5Color = min5Color, min5Dash = min5Dash, min5Width = min5Width, min5ShowMedian = min5ShowMedian, min5ShowLabel = min5ShowLabel, min5LongLabel = min5LongLabel, min5ShortLabel = min5ShortLabel, min15Color = min15Color, min15Dash = min15Dash, min15Width = min15Width, min15ShowMedian = min15ShowMedian, min15ShowLabel = min15ShowLabel, min15LongLabel = min15LongLabel, min15ShortLabel = min15ShortLabel, min30Color = min30Color, min30Dash = min30Dash, min30Width = min30Width, min30ShowMedian = min30ShowMedian, min30ShowLabel = min30ShowLabel, min30LongLabel = min30LongLabel, min30ShortLabel = min30ShortLabel, min60Color = min60Color, min60Dash = min60Dash, min60Width = min60Width, min60ShowMedian = min60ShowMedian, min60ShowLabel = min60ShowLabel, min60LongLabel = min60LongLabel, min60ShortLabel = min60ShortLabel, min240Color = min240Color, min240Dash = min240Dash, min240Width = min240Width, min240ShowMedian = min240ShowMedian, min240ShowLabel = min240ShowLabel, min240LongLabel = min240LongLabel, min240ShortLabel = min240ShortLabel, mondayColor = mondayColor, mondayDash = mondayDash, mondayWidth = mondayWidth, mondayShowMedian = mondayShowMedian, mondayShowLabel = mondayShowLabel, mondayLongLabel = mondayLongLabel, mondayShortLabel = mondayShortLabel, minDailyColor = minDailyColor, minDailyDash = minDailyDash, minDailyWidth = minDailyWidth, minDailyShowMedian = minDailyShowMedian, minDailyShowLabel = minDailyShowLabel, minDailyLongLabel = minDailyLongLabel, minDailyShortLabel = minDailyShortLabel, currentDailyColor = currentDailyColor, currentDailyDash = currentDailyDash, currentDailyWidth = currentDailyWidth, currentDailyShowMedian = currentDailyShowMedian, currentDailyShowLabel = currentDailyShowLabel, currentDailyLongLabel = currentDailyLongLabel, currentDailyShortLabel = currentDailyShortLabel, minWeeklyColor = minWeeklyColor, minWeeklyDash = minWeeklyDash, minWeeklyWidth = minWeeklyWidth, minWeeklyShowMedian = minWeeklyShowMedian, minWeeklyShowLabel = minWeeklyShowLabel, minWeeklyLongLabel = minWeeklyLongLabel, minWeeklyShortLabel = minWeeklyShortLabel, currentWeeklyColor = currentWeeklyColor, currentWeeklyDash = currentWeeklyDash, currentWeeklyWidth = currentWeeklyWidth, currentWeeklyShowMedian = currentWeeklyShowMedian, currentWeeklyShowLabel = currentWeeklyShowLabel, StartWeekFromDay = startWeekFromDay, currentWeeklyLongLabel = currentWeeklyLongLabel, currentWeeklyShortLabel = currentWeeklyShortLabel, minMonthlyColor = minMonthlyColor, minMonthlyDash = minMonthlyDash, minMonthlyWidth = minMonthlyWidth, minMonthlyShowMedian = minMonthlyShowMedian, minMonthlyShowLabel = minMonthlyShowLabel, minMonthlyLongLabel = minMonthlyLongLabel, minMonthlyShortLabel = minMonthlyShortLabel }, input, ref cacheMultiSeriesHL);
 		}
 	}
 }
@@ -1418,14 +1544,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.Cargocult.MultiSeriesHL MultiSeriesHL(bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel)
+		public Indicators.Cargocult.MultiSeriesHL MultiSeriesHL(bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, string min1LongLabel, string min1ShortLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, string min5LongLabel, string min5ShortLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, string min15LongLabel, string min15ShortLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, string min30LongLabel, string min30ShortLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, string min60LongLabel, string min60ShortLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, string min240LongLabel, string min240ShortLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, string minDailyLongLabel, string minDailyShortLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, string currentDailyLongLabel, string currentDailyShortLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, string minWeeklyLongLabel, string minWeeklyShortLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, string currentWeeklyLongLabel, string currentWeeklyShortLabel, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel, string minMonthlyLongLabel, string minMonthlyShortLabel)
 		{
-			return indicator.MultiSeriesHL(Input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel);
+			return indicator.MultiSeriesHL(Input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min1LongLabel, min1ShortLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min5LongLabel, min5ShortLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min15LongLabel, min15ShortLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min30LongLabel, min30ShortLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min60LongLabel, min60ShortLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, min240LongLabel, min240ShortLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, minDailyLongLabel, minDailyShortLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, currentDailyLongLabel, currentDailyShortLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, minWeeklyLongLabel, minWeeklyShortLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, currentWeeklyLongLabel, currentWeeklyShortLabel, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel, minMonthlyLongLabel, minMonthlyShortLabel);
 		}
 
-		public Indicators.Cargocult.MultiSeriesHL MultiSeriesHL(ISeries<double> input , bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel)
+		public Indicators.Cargocult.MultiSeriesHL MultiSeriesHL(ISeries<double> input , bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, string min1LongLabel, string min1ShortLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, string min5LongLabel, string min5ShortLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, string min15LongLabel, string min15ShortLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, string min30LongLabel, string min30ShortLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, string min60LongLabel, string min60ShortLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, string min240LongLabel, string min240ShortLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, string minDailyLongLabel, string minDailyShortLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, string currentDailyLongLabel, string currentDailyShortLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, string minWeeklyLongLabel, string minWeeklyShortLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, string currentWeeklyLongLabel, string currentWeeklyShortLabel, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel, string minMonthlyLongLabel, string minMonthlyShortLabel)
 		{
-			return indicator.MultiSeriesHL(input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel);
+			return indicator.MultiSeriesHL(input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min1LongLabel, min1ShortLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min5LongLabel, min5ShortLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min15LongLabel, min15ShortLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min30LongLabel, min30ShortLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min60LongLabel, min60ShortLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, min240LongLabel, min240ShortLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, minDailyLongLabel, minDailyShortLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, currentDailyLongLabel, currentDailyShortLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, minWeeklyLongLabel, minWeeklyShortLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, currentWeeklyLongLabel, currentWeeklyShortLabel, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel, minMonthlyLongLabel, minMonthlyShortLabel);
 		}
 	}
 }
@@ -1434,14 +1560,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.Cargocult.MultiSeriesHL MultiSeriesHL(bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel)
+		public Indicators.Cargocult.MultiSeriesHL MultiSeriesHL(bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, string min1LongLabel, string min1ShortLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, string min5LongLabel, string min5ShortLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, string min15LongLabel, string min15ShortLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, string min30LongLabel, string min30ShortLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, string min60LongLabel, string min60ShortLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, string min240LongLabel, string min240ShortLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, string minDailyLongLabel, string minDailyShortLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, string currentDailyLongLabel, string currentDailyShortLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, string minWeeklyLongLabel, string minWeeklyShortLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, string currentWeeklyLongLabel, string currentWeeklyShortLabel, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel, string minMonthlyLongLabel, string minMonthlyShortLabel)
 		{
-			return indicator.MultiSeriesHL(Input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel);
+			return indicator.MultiSeriesHL(Input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min1LongLabel, min1ShortLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min5LongLabel, min5ShortLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min15LongLabel, min15ShortLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min30LongLabel, min30ShortLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min60LongLabel, min60ShortLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, min240LongLabel, min240ShortLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, minDailyLongLabel, minDailyShortLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, currentDailyLongLabel, currentDailyShortLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, minWeeklyLongLabel, minWeeklyShortLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, currentWeeklyLongLabel, currentWeeklyShortLabel, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel, minMonthlyLongLabel, minMonthlyShortLabel);
 		}
 
-		public Indicators.Cargocult.MultiSeriesHL MultiSeriesHL(ISeries<double> input , bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel)
+		public Indicators.Cargocult.MultiSeriesHL MultiSeriesHL(ISeries<double> input , bool min1, bool min5, bool min15, bool min30, bool min60, bool min240, bool monday, bool minDaily, bool currentDaily, bool minWeekly, bool currentWeekly, bool minMonthly, string highLongLabel, string highShortLabel, string lowLongLabel, string lowShortLabel, string medianLongLabel, string medianShortLabel, string previousLongLabel, string previousShortLabel, bool useShortLabels, bool showLabelPrices, Brush min1Color, DashStyleHelper min1Dash, int min1Width, bool min1ShowMedian, bool min1ShowLabel, string min1LongLabel, string min1ShortLabel, Brush min5Color, DashStyleHelper min5Dash, int min5Width, bool min5ShowMedian, bool min5ShowLabel, string min5LongLabel, string min5ShortLabel, Brush min15Color, DashStyleHelper min15Dash, int min15Width, bool min15ShowMedian, bool min15ShowLabel, string min15LongLabel, string min15ShortLabel, Brush min30Color, DashStyleHelper min30Dash, int min30Width, bool min30ShowMedian, bool min30ShowLabel, string min30LongLabel, string min30ShortLabel, Brush min60Color, DashStyleHelper min60Dash, int min60Width, bool min60ShowMedian, bool min60ShowLabel, string min60LongLabel, string min60ShortLabel, Brush min240Color, DashStyleHelper min240Dash, int min240Width, bool min240ShowMedian, bool min240ShowLabel, string min240LongLabel, string min240ShortLabel, Brush mondayColor, DashStyleHelper mondayDash, int mondayWidth, bool mondayShowMedian, bool mondayShowLabel, string mondayLongLabel, string mondayShortLabel, Brush minDailyColor, DashStyleHelper minDailyDash, int minDailyWidth, bool minDailyShowMedian, bool minDailyShowLabel, string minDailyLongLabel, string minDailyShortLabel, Brush currentDailyColor, DashStyleHelper currentDailyDash, int currentDailyWidth, bool currentDailyShowMedian, bool currentDailyShowLabel, string currentDailyLongLabel, string currentDailyShortLabel, Brush minWeeklyColor, DashStyleHelper minWeeklyDash, int minWeeklyWidth, bool minWeeklyShowMedian, bool minWeeklyShowLabel, string minWeeklyLongLabel, string minWeeklyShortLabel, Brush currentWeeklyColor, DashStyleHelper currentWeeklyDash, int currentWeeklyWidth, bool currentWeeklyShowMedian, bool currentWeeklyShowLabel, DayOfWeek startWeekFromDay, string currentWeeklyLongLabel, string currentWeeklyShortLabel, Brush minMonthlyColor, DashStyleHelper minMonthlyDash, int minMonthlyWidth, bool minMonthlyShowMedian, bool minMonthlyShowLabel, string minMonthlyLongLabel, string minMonthlyShortLabel)
 		{
-			return indicator.MultiSeriesHL(input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel);
+			return indicator.MultiSeriesHL(input, min1, min5, min15, min30, min60, min240, monday, minDaily, currentDaily, minWeekly, currentWeekly, minMonthly, highLongLabel, highShortLabel, lowLongLabel, lowShortLabel, medianLongLabel, medianShortLabel, previousLongLabel, previousShortLabel, useShortLabels, showLabelPrices, min1Color, min1Dash, min1Width, min1ShowMedian, min1ShowLabel, min1LongLabel, min1ShortLabel, min5Color, min5Dash, min5Width, min5ShowMedian, min5ShowLabel, min5LongLabel, min5ShortLabel, min15Color, min15Dash, min15Width, min15ShowMedian, min15ShowLabel, min15LongLabel, min15ShortLabel, min30Color, min30Dash, min30Width, min30ShowMedian, min30ShowLabel, min30LongLabel, min30ShortLabel, min60Color, min60Dash, min60Width, min60ShowMedian, min60ShowLabel, min60LongLabel, min60ShortLabel, min240Color, min240Dash, min240Width, min240ShowMedian, min240ShowLabel, min240LongLabel, min240ShortLabel, mondayColor, mondayDash, mondayWidth, mondayShowMedian, mondayShowLabel, mondayLongLabel, mondayShortLabel, minDailyColor, minDailyDash, minDailyWidth, minDailyShowMedian, minDailyShowLabel, minDailyLongLabel, minDailyShortLabel, currentDailyColor, currentDailyDash, currentDailyWidth, currentDailyShowMedian, currentDailyShowLabel, currentDailyLongLabel, currentDailyShortLabel, minWeeklyColor, minWeeklyDash, minWeeklyWidth, minWeeklyShowMedian, minWeeklyShowLabel, minWeeklyLongLabel, minWeeklyShortLabel, currentWeeklyColor, currentWeeklyDash, currentWeeklyWidth, currentWeeklyShowMedian, currentWeeklyShowLabel, startWeekFromDay, currentWeeklyLongLabel, currentWeeklyShortLabel, minMonthlyColor, minMonthlyDash, minMonthlyWidth, minMonthlyShowMedian, minMonthlyShowLabel, minMonthlyLongLabel, minMonthlyShortLabel);
 		}
 	}
 }
